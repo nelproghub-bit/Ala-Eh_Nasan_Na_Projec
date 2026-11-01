@@ -2541,7 +2541,7 @@ h1, h2, h3, h4, h5, h6 {
   display: none;
 }
 
-.page-admin-dashboard .top-header {
+body.has-sidebar[class*="page-admin-"] .top-header {
   display: none;
 }
 
@@ -2586,13 +2586,13 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0 16px;
   }
 
-  .page-admin-dashboard .top-header {
+  body.has-sidebar[class*="page-admin-"] .top-header {
     display: flex;
     min-height: 56px;
     padding: 0 16px;
   }
 
-  .page-admin-dashboard .top-header .page-title {
+  body.has-sidebar[class*="page-admin-"] .top-header .page-title {
     display: none;
   }
 
