@@ -132,6 +132,14 @@ function require_admin(): array
     return $_SESSION['admin'];
 }
 
+function profile_photo_endpoint_path(): string
+{
+    $scriptPath = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/public/index.php'));
+    $publicPath = rtrim(dirname($scriptPath), '/');
+
+    return ($publicPath === '' ? '' : $publicPath) . '/profile-photo.php';
+}
+
 function page_start(string $title, string $page = ''): void
 {
     $safeTitle = h($title);
@@ -139,6 +147,12 @@ function page_start(string $title, string $page = ''): void
     $isAuthenticated = current_driver() !== null || current_admin() !== null;
     $layoutClass = $isAuthenticated ? 'has-sidebar' : '';
     $photoCacheKey = bin2hex(random_bytes(8));
+    $profilePhotoPath = profile_photo_endpoint_path();
+    $profilePhotoEndpoint = h($profilePhotoPath);
+    $profilePhotoEndpointJson = json_encode(
+        $profilePhotoPath,
+        JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
+    );
     
     echo <<<HTML
 <!doctype html>
@@ -195,7 +209,7 @@ HTML;
             echo <<<HTML
       <div class="sidebar-user">
         <button class="sidebar-user-avatar" type="button" data-profile-photo-open aria-label="Manage profile picture" title="Manage profile picture">
-          <img src="profile-photo.php?v={$photoCacheKey}" alt="" data-profile-photo-avatar hidden>
+          <img src="{$profilePhotoEndpoint}?v={$photoCacheKey}" alt="" data-profile-photo-avatar hidden>
           <span data-profile-photo-initial>{$initials}</span>
           <span class="profile-photo-camera" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8.2 5.5 9.4 4h5.2l1.2 1.5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h3.2ZM12 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 1.7a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/></svg></span>
         </button>
@@ -258,7 +272,7 @@ HTML;
             echo <<<HTML
       <div class="sidebar-user">
         <button class="sidebar-user-avatar" type="button" data-profile-photo-open aria-label="Manage profile picture" title="Manage profile picture">
-          <img src="profile-photo.php?v={$photoCacheKey}" alt="" data-profile-photo-avatar hidden>
+          <img src="{$profilePhotoEndpoint}?v={$photoCacheKey}" alt="" data-profile-photo-avatar hidden>
           <span data-profile-photo-initial>{$initials}</span>
           <span class="profile-photo-camera" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8.2 5.5 9.4 4h5.2l1.2 1.5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h3.2ZM12 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 1.7a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/></svg></span>
         </button>
@@ -362,12 +376,12 @@ HTML;
     <div><span class="eyebrow"><span class="eyebrow-dot"></span> ACCOUNT SETTINGS</span><h2 id="profile-photo-title">Your profile picture</h2><p>Personalize your account with a photo that appears in the sidebar.</p></div>
     <button class="admin-manage-dialog-close" type="button" data-profile-photo-close aria-label="Close dialog">×</button>
   </div>
-  <form class="profile-photo-form" id="profile-photo-form" action="profile-photo.php" method="post" enctype="multipart/form-data">
+  <form class="profile-photo-form" id="profile-photo-form" action="{$profilePhotoEndpoint}" method="post" enctype="multipart/form-data">
     {$csrfField}
 HTML;
         echo <<<HTML
     <div class="profile-photo-preview" aria-live="polite">
-      <img src="profile-photo.php?v={$photoCacheKey}" alt="Your current profile picture" data-profile-photo-preview hidden>
+      <img src="{$profilePhotoEndpoint}?v={$photoCacheKey}" alt="Your current profile picture" data-profile-photo-preview hidden>
       <span data-profile-photo-preview-initial>{$profileInitial}</span>
       <span class="profile-photo-preview-ring" aria-hidden="true"></span>
     </div>
@@ -392,6 +406,10 @@ HTML;
 function page_end(): void
 {
     $isAuthenticated = current_driver() !== null || current_admin() !== null;
+    $profilePhotoEndpointJson = json_encode(
+        profile_photo_endpoint_path(),
+        JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
+    );
     
     if ($isAuthenticated) {
         echo <<<HTML
@@ -407,6 +425,7 @@ const themeToggles = document.querySelectorAll('[data-theme-toggle]');
 const themeIsDark = document.documentElement.classList.contains('dark-mode');
 const profilePhotoDialog = document.getElementById('profile-photo-dialog');
 const profilePhotoForm = document.getElementById('profile-photo-form');
+const profilePhotoEndpoint = {$profilePhotoEndpointJson};
 const profilePhotoInput = document.getElementById('profile-photo-file');
 const profilePhotoFeedback = document.getElementById('profile-photo-feedback');
 const profilePhotoFileName = document.querySelector('[data-profile-photo-file-name]');
@@ -450,7 +469,7 @@ document.querySelectorAll('[data-profile-photo-open]').forEach((button) => {
       URL.revokeObjectURL(profilePhotoPreviewUrl);
       profilePhotoPreviewUrl = null;
     }
-    setProfilePhoto(`profile-photo.php?v=\${Date.now()}`);
+    setProfilePhoto(profilePhotoEndpoint + '?v=' + Date.now());
     if (profilePhotoDialog && !profilePhotoDialog.open) profilePhotoDialog.showModal();
   });
 });
@@ -471,7 +490,7 @@ if (profilePhotoDialog) {
     if (profilePhotoInput) profilePhotoInput.value = '';
     if (profilePhotoSave) profilePhotoSave.disabled = true;
     if (profilePhotoFileName) profilePhotoFileName.textContent = 'No photo selected';
-    setProfilePhoto(`profile-photo.php?v=\${Date.now()}`);
+    setProfilePhoto(profilePhotoEndpoint + '?v=' + Date.now());
   });
 }
 
@@ -488,7 +507,7 @@ if (profilePhotoInput) {
         URL.revokeObjectURL(profilePhotoPreviewUrl);
         profilePhotoPreviewUrl = null;
       }
-      setProfilePhoto(`profile-photo.php?v=\${Date.now()}`, false);
+      setProfilePhoto(profilePhotoEndpoint + '?v=' + Date.now(), false);
       return;
     }
     if (profilePhotoPreviewUrl) URL.revokeObjectURL(profilePhotoPreviewUrl);
@@ -529,13 +548,13 @@ if (profilePhotoForm) {
           throw new Error('The image exceeds the server upload limit. Choose a smaller photo.');
         }
         if (response.status >= 500) {
-          throw new Error(`The server could not save your photo (HTTP \${response.status}). It was not changed; please retry.`);
+          throw new Error('The server could not save your photo (HTTP ' + response.status + '). It was not changed; please retry.');
         }
-        throw new Error(`The photo request was rejected (HTTP \${response.status}). Reload the page and try again.`);
+        throw new Error('The photo request was rejected (HTTP ' + response.status + '). Reload the page and try again.');
       }
       const result = await response.json();
       if (!response.ok) {
-        const requestReference = result.request_id ? ` Reference: \${result.request_id}.` : '';
+        const requestReference = result.request_id ? ' Reference: ' + result.request_id + '.' : '';
         throw new Error((result.message || 'The profile photo could not be updated.') + requestReference);
       }
       if (profilePhotoPreviewUrl) {
@@ -551,7 +570,7 @@ if (profilePhotoForm) {
         });
         if (profilePhotoRemove) profilePhotoRemove.hidden = true;
       } else {
-        const updatedSource = `profile-photo.php?v=\${Date.now()}`;
+        const updatedSource = profilePhotoEndpoint + '?v=' + Date.now();
         setProfilePhoto(updatedSource);
       }
       profilePhotoInput.value = '';
