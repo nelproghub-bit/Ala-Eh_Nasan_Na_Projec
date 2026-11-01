@@ -2373,21 +2373,23 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 8px 12px;
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
+  gap: 13px;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   color: var(--muted);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   position: relative;
 }
 
@@ -2396,9 +2398,18 @@ h1, h2, h3, h4, h5, h6 {
   padding: 12px 8px;
 }
 
-.sidebar-link:hover {
-  background: var(--blue-50);
+.sidebar-link:not(.active):hover {
+  border-color: rgb(37 99 235 / 10%);
+  background: linear-gradient(90deg, rgb(37 99 235 / 8%), rgb(37 99 235 / 3%));
   color: var(--blue-700);
+  transform: translateX(2px);
+}
+
+.sidebar-link:focus-visible,
+.sidebar-theme-toggle:focus-visible,
+.sidebar-logout:focus-visible {
+  outline: 2px solid var(--blue-500);
+  outline-offset: 2px;
 }
 
 .sidebar-link.active {
@@ -2408,14 +2419,25 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 12px rgb(37 99 235 / 20%);
 }
 
-.sidebar-link.active .sidebar-link-icon {
-  transform: scale(1.1);
+.sidebar-link.active::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--blue-500);
+  content: '';
 }
 
 .sidebar-link-icon {
   font-size: 20px;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition: transform 0.18s ease;
+}
+
+.sidebar-link:not(.active):hover .sidebar-link-icon {
+  transform: scale(1.08);
 }
 
 .sidebar-link-text {
@@ -2440,10 +2462,11 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border: none;
-  border-radius: var(--radius-md);
+  gap: 13px;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   background: transparent;
   color: var(--muted);
   font: inherit;
@@ -2459,7 +2482,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar-logout:hover {
-  background: rgb(239 68 68 / 0.1);
+  border-color: rgb(220 38 38 / 12%);
+  background: rgb(220 38 38 / 7%);
   color: #dc2626;
 }
 
@@ -3170,10 +3194,45 @@ html.dark-mode .sidebar-logout:hover {
   background: #171717;
 }
 
+html.dark-mode .sidebar-link:not(.active):hover,
+html.dark-mode .sidebar-theme-toggle:hover {
+  border-color: #303030;
+  color: #fff;
+  background: linear-gradient(90deg, #1a1a1a, #101010);
+  box-shadow: inset 3px 0 0 #737373;
+}
+
 html.dark-mode .sidebar-link.active {
   color: #fff;
   background: linear-gradient(135deg, #303030, #171717);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 45%);
+  border-color: #363636;
+  box-shadow: inset 3px 0 0 #d4d4d4, 0 4px 12px rgb(0 0 0 / 45%);
+}
+
+html.dark-mode .sidebar-link.active::before {
+  display: none;
+}
+
+html.dark-mode .sidebar-logout:hover {
+  border-color: rgb(248 113 113 / 20%);
+  color: #fca5a5;
+  background: rgb(127 29 29 / 18%);
+  box-shadow: inset 3px 0 0 #f87171;
+}
+
+html.dark-mode .sidebar-toggle {
+  color: #f5f5f5;
+  background: #111;
+  border-color: #383838;
+}
+
+html.dark-mode .sidebar-toggle:hover {
+  background: #222;
+  border-color: #525252;
+}
+
+html.dark-mode .toggle-icon {
+  border-color: #e5e5e5;
 }
 
 html.dark-mode .sidebar-brand-name,
