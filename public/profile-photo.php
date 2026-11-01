@@ -5,6 +5,13 @@ require_once __DIR__ . '/../app/bootstrap.php';
 $isAdmin = current_admin() !== null;
 $isDriver = current_driver() !== null;
 if (!$isAdmin && !$isDriver) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        header('Cache-Control: no-store');
+        header('Content-Type: application/json; charset=UTF-8');
+        http_response_code(401);
+        echo json_encode(['message' => 'Sign in again before managing your profile photo.'], JSON_THROW_ON_ERROR);
+        exit;
+    }
     http_response_code(404);
     exit;
 }

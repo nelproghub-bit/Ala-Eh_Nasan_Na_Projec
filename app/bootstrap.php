@@ -375,12 +375,13 @@ HTML;
       <strong>Choose a clear, recognizable photo</strong>
       <span>JPEG, PNG, or WebP · up to 5 MB · maximum 16 megapixels</span>
     </div>
-    <label class="profile-photo-file-label" for="profile-photo-file">Select a photo</label>
     <input class="profile-photo-file-input" id="profile-photo-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
+    <label class="profile-photo-file-label" for="profile-photo-file">Select a photo</label>
+    <span class="profile-photo-file-name" data-profile-photo-file-name>No photo selected</span>
     <p class="profile-photo-feedback" id="profile-photo-feedback" role="status" aria-live="polite"></p>
     <div class="profile-photo-actions">
       <button class="button button-outline profile-photo-remove" type="submit" name="action" value="remove" data-profile-photo-remove hidden>Remove photo</button>
-      <button class="button button-primary" type="submit" name="action" value="save" data-profile-photo-save>Save photo</button>
+      <button class="button button-primary" type="submit" name="action" value="save" data-profile-photo-save disabled>Save photo</button>
     </div>
   </form>
 </dialog>
@@ -408,6 +409,7 @@ const profilePhotoDialog = document.getElementById('profile-photo-dialog');
 const profilePhotoForm = document.getElementById('profile-photo-form');
 const profilePhotoInput = document.getElementById('profile-photo-file');
 const profilePhotoFeedback = document.getElementById('profile-photo-feedback');
+const profilePhotoFileName = document.querySelector('[data-profile-photo-file-name]');
 const profilePhotoRemove = document.querySelector('[data-profile-photo-remove]');
 const profilePhotoSave = document.querySelector('[data-profile-photo-save]');
 let profilePhotoPreviewUrl = null;
@@ -441,6 +443,8 @@ document.querySelectorAll('[data-profile-photo-avatar], [data-profile-photo-prev
 document.querySelectorAll('[data-profile-photo-open]').forEach((button) => {
   button.addEventListener('click', () => {
     if (profilePhotoInput) profilePhotoInput.value = '';
+    if (profilePhotoSave) profilePhotoSave.disabled = true;
+    if (profilePhotoFileName) profilePhotoFileName.textContent = 'No photo selected';
     if (profilePhotoFeedback) profilePhotoFeedback.textContent = '';
     if (profilePhotoPreviewUrl) {
       URL.revokeObjectURL(profilePhotoPreviewUrl);
@@ -465,6 +469,8 @@ if (profilePhotoDialog) {
       profilePhotoPreviewUrl = null;
     }
     if (profilePhotoInput) profilePhotoInput.value = '';
+    if (profilePhotoSave) profilePhotoSave.disabled = true;
+    if (profilePhotoFileName) profilePhotoFileName.textContent = 'No photo selected';
     setProfilePhoto(`profile-photo.php?v=\${Date.now()}`);
   });
 }
@@ -476,12 +482,21 @@ if (profilePhotoInput) {
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
       profilePhotoFeedback.textContent = 'Choose a JPEG, PNG, or WebP image smaller than 5 MB.';
       profilePhotoInput.value = '';
+      profilePhotoSave.disabled = true;
+      profilePhotoFileName.textContent = 'No photo selected';
+      if (profilePhotoPreviewUrl) {
+        URL.revokeObjectURL(profilePhotoPreviewUrl);
+        profilePhotoPreviewUrl = null;
+      }
+      setProfilePhoto(`profile-photo.php?v=\${Date.now()}`, false);
       return;
     }
     if (profilePhotoPreviewUrl) URL.revokeObjectURL(profilePhotoPreviewUrl);
     profilePhotoPreviewUrl = URL.createObjectURL(file);
     setProfilePhoto(profilePhotoPreviewUrl, false);
+    profilePhotoFileName.textContent = file.name;
     profilePhotoFeedback.textContent = '';
+    profilePhotoSave.disabled = false;
   });
 }
 
@@ -505,9 +520,15 @@ if (profilePhotoForm) {
         headers: { Accept: 'application/json' },
         credentials: 'same-origin'
       });
-      const result = await response.json().catch(() => ({
-        message: 'The profile photo could not be updated. Please try again.'
-      }));
+      const contentType = response.headers.get('content-type') || '';
+      if (response.redirected || !contentType.toLowerCase().includes('application/json')) {
+        throw new Error(
+          response.redirected
+            ? 'Your sign-in session may have expired. Reload the page and sign in again.'
+            : 'The server could not save your photo. Check your connection and try again.'
+        );
+      }
+      const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'The profile photo could not be updated.');
       if (profilePhotoPreviewUrl) {
         URL.revokeObjectURL(profilePhotoPreviewUrl);
@@ -526,6 +547,8 @@ if (profilePhotoForm) {
         setProfilePhoto(updatedSource);
       }
       profilePhotoInput.value = '';
+      profilePhotoFileName.textContent = 'No photo selected';
+      profilePhotoSave.disabled = true;
       profilePhotoFeedback.textContent = result.message;
     } catch (error) {
       profilePhotoFeedback.textContent = error instanceof Error ? error.message : 'The profile photo could not be updated.';

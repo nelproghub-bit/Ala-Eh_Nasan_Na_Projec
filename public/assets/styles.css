@@ -3719,6 +3719,18 @@ html.dark-mode .admin-map {
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
+.profile-photo-actions [hidden] {
+  display: none !important;
+}
+
+.profile-photo-file-name {
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
 .profile-photo-file-label:hover {
   border-color: var(--blue-400);
   background: #eaf2ff;
@@ -3759,8 +3771,10 @@ html.dark-mode .admin-map {
 }
 
 .profile-photo-actions button:disabled {
-  cursor: wait;
-  opacity: 0.65;
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
 }
 
 html.dark-mode .profile-photo-dialog {
@@ -3782,7 +3796,8 @@ html.dark-mode .profile-photo-upload-copy strong {
 
 html.dark-mode .profile-photo-dialog-header p,
 html.dark-mode .profile-photo-upload-copy span,
-html.dark-mode .profile-photo-feedback {
+html.dark-mode .profile-photo-feedback,
+html.dark-mode .profile-photo-file-name {
   color: #a3a3a3;
 }
 
