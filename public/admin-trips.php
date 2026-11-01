@@ -97,8 +97,25 @@ page_start('Trip monitoring', 'admin-trips');
   const refreshSeconds = <?= json_encode($refreshSeconds) ?>;
   const csrfToken = <?= json_encode(csrf_token()) ?>;
   const canCancelTrips = <?= json_encode(in_array($admin['role'] ?? '', ['owner', 'admin'], true)) ?>;
+  const defaultMapCenter = [13.7565, 121.0583];
   let map = null;
+  let hasCenteredOnLocations = false;
   const markers = new Map();
+  const jeepneyIcon = window.L ? L.divIcon({
+    className: 'jeepney-map-icon',
+    html: '<span class="jeepney-map-marker" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 3.75h14A2.25 2.25 0 0 1 21.25 6v11A2.25 2.25 0 0 1 19 19.25h-.5v1a1 1 0 0 1-2 0v-1h-9v1a1 1 0 0 1-2 0v-1H5A2.25 2.25 0 0 1 2.75 17V6A2.25 2.25 0 0 1 5 3.75Zm-.25 3v4h14.5v-4a.25.25 0 0 0-.25-.25H5a.25.25 0 0 0-.25.25Zm0 6v4.25c0 .138.112.25.25.25h14a.25.25 0 0 0 .25-.25v-4.25H4.75ZM7 14a1.25 1.25 0 1 1 0 2.5A1.25 1.25 0 0 1 7 14Zm10 0a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg></span>',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+    popupAnchor: [0, -20]
+  }) : null;
+  const initializeMap = () => {
+    if (map || !window.L) return;
+    map = L.map(mapElement).setView(defaultMapCenter, 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+  };
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[char]));
@@ -107,9 +124,10 @@ page_start('Trip monitoring', 'admin-trips');
       const response = await fetch('api/admin-locations.php', {headers: {'Accept': 'application/json'}, cache: 'no-store'});
       if (!response.ok) throw new Error('Location service unavailable.');
       const data = await response.json();
-      const valid = data.locations.filter(point => point.latitude !== null && point.longitude !== null);
+      const locations = Array.isArray(data.locations) ? data.locations : [];
+      const valid = locations.filter(point => point.latitude !== null && point.longitude !== null);
       activeRows.replaceChildren();
-      for (const point of data.locations) {
+      for (const point of locations) {
         const row = document.createElement('tr');
         const addCell = (label, text) => {
           const cell = document.createElement('td');
@@ -148,8 +166,9 @@ page_start('Trip monitoring', 'admin-trips');
         } else {
           actionCell.textContent = 'View only';
         }
+        activeRows.appendChild(row);
       }
-      if (data.locations.length === 0) {
+      if (locations.length === 0) {
         const row = document.createElement('tr');
         const cell = document.createElement('td');
         cell.colSpan = 5;
@@ -157,23 +176,21 @@ page_start('Trip monitoring', 'admin-trips');
         row.appendChild(cell);
         activeRows.appendChild(row);
       }
-      if (valid.length && !map) {
-        map = L.map(mapElement).setView([Number(valid[0].latitude), Number(valid[0].longitude)], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+      if (!window.L || !jeepneyIcon) {
+        status.textContent = 'The map could not load. Active trip details are still available below.';
+        return;
       }
+      initializeMap();
       const activeIds = new Set();
       for (const point of valid) {
         const key = String(point.trip_id);
         activeIds.add(key);
-        const markerContent = `<strong>${escapeHtml(point.full_name)}</strong><br>${escapeHtml(point.plate_number)} · ${escapeHtml(point.route_name)}<br>Updated ${escapeHtml(point.recorded_at)}`;
+        const markerContent = `<strong>${escapeHtml(point.plate_number || 'Jeepney')}</strong><br>${escapeHtml(point.full_name)}<br>${escapeHtml(point.route_name)}<br>Updated ${escapeHtml(point.recorded_at)}`;
         const position = [Number(point.latitude), Number(point.longitude)];
         if (markers.has(key)) {
           markers.get(key).setLatLng(position).setPopupContent(markerContent);
         } else {
-          markers.set(key, L.marker(position).addTo(map).bindPopup(markerContent));
+          markers.set(key, L.marker(position, {icon: jeepneyIcon}).addTo(map).bindPopup(markerContent));
         }
       }
       for (const [key, marker] of markers) {
@@ -182,14 +199,21 @@ page_start('Trip monitoring', 'admin-trips');
           markers.delete(key);
         }
       }
+      if (valid.length && !hasCenteredOnLocations) {
+        const bounds = L.latLngBounds(valid.map(point => [Number(point.latitude), Number(point.longitude)]));
+        map.fitBounds(bounds, {padding: [36, 36], maxZoom: 15});
+        hasCenteredOnLocations = true;
+      }
       status.textContent = valid.length
-        ? `${valid.length} active trip location${valid.length === 1 ? '' : 's'} · Updated ${new Date().toLocaleTimeString()}`
-        : 'No active trip has shared a GPS position yet.';
-      if (valid.length === 1) map.setView([Number(valid[0].latitude), Number(valid[0].longitude)], Math.max(map.getZoom(), 12));
+        ? `${valid.length} jeepney location${valid.length === 1 ? '' : 's'} · Refreshes every ${refreshSeconds}s · Updated ${new Date().toLocaleTimeString()}`
+        : locations.length
+          ? `${locations.length} active trip${locations.length === 1 ? '' : 's'} · Waiting for driver location permission or GPS fix.`
+          : `No active trip is sharing a GPS position. Map refreshes every ${refreshSeconds} seconds.`;
     } catch (error) {
       status.textContent = error instanceof Error ? error.message : 'Location updates are unavailable.';
     }
   };
+  initializeMap();
   updateMap();
   window.setInterval(updateMap, refreshSeconds * 1000);
 })();

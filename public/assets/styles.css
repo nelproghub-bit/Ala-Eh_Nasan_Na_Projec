@@ -2800,6 +2800,31 @@ body.has-sidebar[class*="page-admin-"] .top-header {
   z-index: 0;
 }
 
+.jeepney-map-icon {
+  border: 0;
+  background: transparent;
+}
+
+.jeepney-map-marker {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 12%;
+  color: #fff;
+  background: #2563eb;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 38%);
+  transform: rotate(-45deg);
+}
+
+.jeepney-map-marker svg {
+  width: 23px;
+  height: 23px;
+  fill: currentColor;
+  transform: rotate(45deg);
+}
+
 .map-attribution {
   padding: 8px 20px;
   color: var(--muted);
