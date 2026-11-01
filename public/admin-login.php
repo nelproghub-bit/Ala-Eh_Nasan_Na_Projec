@@ -22,7 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Too many sign-in attempts. Please wait 15 minutes before trying again.';
         } else {
             $query = $pdo->prepare(
-                'SELECT id, email, password_hash FROM admins WHERE email = :email LIMIT 1'
+                "SELECT a.id, a.email, a.password_hash, r.role
+                 FROM admins a
+                 INNER JOIN admin_roles r ON r.admin_id = a.id
+                 WHERE a.email = :email AND r.account_status = 'active'
+                 LIMIT 1"
             );
             $query->execute(['email' => $email]);
             $admin = $query->fetch();
@@ -41,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin'] = [
                     'id' => (int) $admin['id'],
                     'email' => $admin['email'],
+                    'role' => $admin['role'],
                 ];
                 redirect('admin-dashboard.php');
             }
@@ -73,7 +78,7 @@ page_start('Admin sign in', 'admin-login');
       <label>Password <input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"></label>
       <button class="button button-primary button-submit" type="submit">Sign in to admin <span aria-hidden="true">→</span></button>
     </form>
-    <div class="form-security"><span aria-hidden="true">◈</span> Admin accounts are separate from driver accounts.</div>
+    <div class="form-security"><span aria-hidden="true">◈</span> Admin accounts are separate from driver accounts and use role-based access.</div>
     <?php if (first_admin_registration_available()): ?>
     <p class="form-switch">Setting up the portal? <a href="admin-register.php">Create the first admin account</a></p>
     <?php endif; ?>

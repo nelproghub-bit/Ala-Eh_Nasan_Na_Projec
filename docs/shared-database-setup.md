@@ -1,6 +1,6 @@
 # Shared Aiven MySQL setup
 
-This guide configures Arnel Gubi, Alex Cueto, and Ashley De Chavez to run separate XAMPP/PHP copies of the website against exactly one shared application database: `ala_eh`. The Aiven service may also provide its own default `defaultdb`; the website does not use it. Every developer and the migration tool must use `DB_NAME=ala_eh`. Only the individual runtime account credentials differ. The site reads the latest committed database records on its next request; it does not push automatic real-time updates to open pages.
+This guide configures Arnel Gubi, Alex Cueto, and Ashley De Chavez to run separate XAMPP/PHP copies of the website against exactly one shared application database: `ala_eh`. The Aiven service may also provide its own default `defaultdb`; the website does not use it. Every developer and the migration tool must use `DB_NAME=ala_eh`. Only the individual runtime account credentials differ. Normal pages retrieve shared records when requested. The admin trip map polls active trips for new driver-consented GPS updates; it is not a continuous server push.
 
 ## What this repository configures
 
@@ -10,6 +10,7 @@ This guide configures Arnel Gubi, Alex Cueto, and Ashley De Chavez to run separa
 - `tools/check_database.php` is a CLI-only connectivity check. It reports no host, username, password, certificate path, or server error to the caller.
 - `tools/import_schema.php` imports the initial schema only when the target database has no tables.
 - `tools/migrate.php` is a CLI-only runner for reviewed, versioned SQL files and requires a separate migration account.
+- The admin operations migration adds terminals/routes, vehicle/driver state, trip/location history, document review, commuter records, admin roles, settings, and activity logs without dropping existing tables or records.
 
 ## Tasks requiring an authorized service owner
 
@@ -97,6 +98,20 @@ For each developer:
 5. Review the resulting schema and application behavior, then merge the migration and code changes through the repository's normal pull-request process. Keep the migration account credentials separate from runtime accounts.
 
 The runner records `0000_initial_schema` as a baseline after it verifies all existing application tables. It does not replay the schema over the database. If tables are missing or an existing schema differs, stop and resolve that with an authorized, reviewed change rather than attempting an automatic reset.
+
+## Admin operations and trip tracking
+
+The admin portal now includes driver and document review, jeepney records, terminal and route configuration, active-trip monitoring, reports/CSV exports, owner-managed administrator roles, commuter contact records, settings, and an audit log. Back up `ala_eh` first, merge the reviewed migration, then have an authorized schema administrator apply it from the project root:
+
+```text
+php tools/migrate.php
+```
+
+The migration account needs permission to create the new tables and indexes. Runtime app accounts continue to need only `SELECT`, `INSERT`, `UPDATE`, and `DELETE`; do not give them schema privileges. The migration is additive and idempotent on retry, but MySQL DDL is not transactional, so review logs and inspect the resulting schema if a run fails.
+
+Administrators should enter verified real terminal/stop coordinates. The application does not seed guessed locations. Only a verified driver with an approved, active jeepney and route can start a trip. Starting a trip explicitly requests browser geolocation; the driver can deny permission, and completing/cancelling the trip stops further location updates. Mobile browsers generally require HTTPS for geolocation. Authorized admins see the latest reported position on a map that polls every configured 10–120 seconds. OpenStreetMap tiles are fetched from the public tile service; avoid exposing individual trip details outside the admin portal.
+
+Driver-uploaded PDF/JPEG/PNG files (8 MB maximum) are stored as private database blobs so authorized admins on another developer's computer can review the same document. This increases database size and backup requirements; for production-scale document volume, migrate to a properly secured shared object-storage service. Commuter records in this release are admin-managed contact records only: commuter registration, login, and permissions are not implemented. Admin roles are `owner` (user/settings management), `admin` (transport operations), and `viewer` (read-only portal access). The initial admin is seeded as owner; only an owner can create further admin accounts.
 
 ## GitHub collaboration
 

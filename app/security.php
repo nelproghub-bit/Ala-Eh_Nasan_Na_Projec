@@ -164,6 +164,10 @@ function create_first_admin(string $email, string $password): bool
             'email' => $email,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
         ]);
+        $role = $pdo->prepare(
+            "INSERT INTO admin_roles (admin_id, role, account_status) VALUES (?, 'owner', 'active')"
+        );
+        $role->execute([(int) $pdo->lastInsertId()]);
         $pdo->commit();
         return true;
     } catch (Throwable $exception) {

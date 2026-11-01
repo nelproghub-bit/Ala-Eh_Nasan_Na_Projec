@@ -23,13 +23,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Too many login attempts. Please wait 15 minutes before trying again.';
         } else {
             $query = $pdo->prepare(
-                'SELECT id, full_name, email, password_hash, verification_status
-                 FROM drivers WHERE email = :email LIMIT 1'
+                "SELECT d.id, d.full_name, d.email, d.password_hash, d.verification_status,
+                        COALESCE(s.account_status, 'active') AS account_status
+                 FROM drivers d
+                 LEFT JOIN driver_admin_status s ON s.driver_id = d.id
+                 WHERE d.email = :email LIMIT 1"
             );
             $query->execute(['email' => $email]);
             $driver = $query->fetch();
 
-            if ($driver !== false && password_verify($password, $driver['password_hash'])) {
+            if (
+                $driver !== false &&
+                $driver['account_status'] === 'active' &&
+                password_verify($password, $driver['password_hash'])
+            ) {
                 if (password_needs_rehash($driver['password_hash'], PASSWORD_DEFAULT)) {
                     $rehash = $pdo->prepare('UPDATE drivers SET password_hash = :hash WHERE id = :id');
                     $rehash->execute([

@@ -62,6 +62,7 @@ session_start();
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/vehicles.php';
+require_once __DIR__ . '/admin.php';
 
 function h(string $value): string
 {
@@ -95,6 +96,18 @@ function require_driver(): array
         redirect('login.php');
     }
 
+    $status = db()->prepare(
+        "SELECT COALESCE(
+            (SELECT account_status FROM driver_admin_status WHERE driver_id = :driver_id),
+            'active'
+         )"
+    );
+    $status->execute(['driver_id' => $driver['id']]);
+    if ($status->fetchColumn() !== 'active') {
+        unset($_SESSION['driver']);
+        redirect('login.php?account=disabled');
+    }
+
     return $driver;
 }
 
@@ -105,7 +118,18 @@ function require_admin(): array
         redirect('admin-login.php');
     }
 
-    return $admin;
+    $access = db()->prepare(
+        'SELECT role, account_status FROM admin_roles WHERE admin_id = :admin_id LIMIT 1'
+    );
+    $access->execute(['admin_id' => $admin['id']]);
+    $role = $access->fetch();
+    if ($role === false || $role['account_status'] !== 'active') {
+        unset($_SESSION['admin']);
+        redirect('admin-login.php?account=disabled');
+    }
+    $_SESSION['admin']['role'] = $role['role'];
+
+    return $_SESSION['admin'];
 }
 
 function page_start(string $title, string $page = ''): void
@@ -152,22 +176,48 @@ HTML;
         
         if (current_admin() !== null) {
             $driver = current_admin();
+            $adminEmail = h((string) ($driver['email'] ?? 'Admin'));
+            $adminRole = h(ucfirst((string) ($driver['role'] ?? 'admin')));
+            $ownerLinks = ($driver['role'] ?? '') === 'owner'
+                ? '<a href="admin-users.php" class="sidebar-link"><span class="sidebar-link-icon">🔐</span><span class="sidebar-link-text">Users & admins</span></a><a href="admin-settings.php" class="sidebar-link"><span class="sidebar-link-icon">⚙️</span><span class="sidebar-link-text">Settings & activity</span></a>'
+                : '';
             echo <<<HTML
       <div class="sidebar-user">
         <div class="sidebar-user-avatar">A</div>
         <div class="sidebar-user-info">
-          <span class="sidebar-user-name">{$driver['full_name']}</span>
-          <span class="sidebar-user-role">Administrator</span>
+          <span class="sidebar-user-name">{$adminEmail}</span>
+          <span class="sidebar-user-role">{$adminRole}</span>
         </div>
       </div>
       <div class="sidebar-menu">
-        <a href="index.php" class="sidebar-link">
-          <span class="sidebar-link-icon">🏠</span>
-          <span class="sidebar-link-text">Home</span>
-        </a>
         <a href="admin-dashboard.php" class="sidebar-link">
           <span class="sidebar-link-icon">📊</span>
-          <span class="sidebar-link-text">Admin Dashboard</span>
+          <span class="sidebar-link-text">Overview</span>
+        </a>
+        <a href="admin-drivers.php" class="sidebar-link">
+          <span class="sidebar-link-icon">👤</span>
+          <span class="sidebar-link-text">Drivers</span>
+        </a>
+        <a href="admin-jeepneys.php" class="sidebar-link">
+          <span class="sidebar-link-icon">🚌</span>
+          <span class="sidebar-link-text">Jeepneys</span>
+        </a>
+        <a href="admin-routes.php" class="sidebar-link">
+          <span class="sidebar-link-icon">📍</span>
+          <span class="sidebar-link-text">Terminals & routes</span>
+        </a>
+        <a href="admin-trips.php" class="sidebar-link">
+          <span class="sidebar-link-icon">🗺️</span>
+          <span class="sidebar-link-text">Trips & live map</span>
+        </a>
+        <a href="admin-reports.php" class="sidebar-link">
+          <span class="sidebar-link-icon">📈</span>
+          <span class="sidebar-link-text">Reports</span>
+        </a>
+        {$ownerLinks}
+        <a href="index.php" class="sidebar-link">
+          <span class="sidebar-link-icon">🏠</span>
+          <span class="sidebar-link-text">Public site</span>
         </a>
       </div>
       <div class="sidebar-footer">
@@ -184,12 +234,13 @@ HTML;
 HTML;
         } elseif (current_driver() !== null) {
             $driver = current_driver();
-            $initials = strtoupper(substr($driver['full_name'], 0, 1));
+            $initials = h(strtoupper(substr((string) $driver['full_name'], 0, 1)));
+            $driverName = h((string) $driver['full_name']);
             echo <<<HTML
       <div class="sidebar-user">
         <div class="sidebar-user-avatar">{$initials}</div>
         <div class="sidebar-user-info">
-          <span class="sidebar-user-name">{$driver['full_name']}</span>
+          <span class="sidebar-user-name">{$driverName}</span>
           <span class="sidebar-user-role">Driver</span>
         </div>
       </div>
@@ -206,6 +257,10 @@ HTML;
           <span class="sidebar-link-icon">🗺️</span>
           <span class="sidebar-link-text">My route</span>
         </a>
+        <a href="driver-trip.php" class="sidebar-link">
+          <span class="sidebar-link-icon">📡</span>
+          <span class="sidebar-link-text">Trip tracking</span>
+        </a>
         <a href="jeepney-profile.php" class="sidebar-link">
           <span class="sidebar-link-icon">🚌</span>
           <span class="sidebar-link-text">My jeepney</span>
@@ -213,6 +268,10 @@ HTML;
         <a href="driver-profile.php" class="sidebar-link">
           <span class="sidebar-link-icon">👤</span>
           <span class="sidebar-link-text">My profile</span>
+        </a>
+        <a href="driver-documents.php" class="sidebar-link">
+          <span class="sidebar-link-icon">📄</span>
+          <span class="sidebar-link-text">My documents</span>
         </a>
       </div>
       <div class="sidebar-footer">
