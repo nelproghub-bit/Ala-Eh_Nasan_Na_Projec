@@ -101,7 +101,7 @@ The runner records `0000_initial_schema` as a baseline after it verifies all exi
 
 ## Admin operations and trip tracking
 
-The admin portal now includes driver and document review, jeepney records, terminal and route configuration, active-trip monitoring, reports/CSV exports, owner-managed administrator roles, commuter contact records, settings, and an audit log. Back up `ala_eh` first, merge the reviewed migration, then have an authorized schema administrator apply it from the project root:
+The admin portal now includes driver and document review, jeepney records, terminal and route configuration, active-trip monitoring, reports/CSV exports, owner-managed administrator roles, commuter contact records, settings, and an audit log. Profile photos are stored in the shared database, served only to their signed-in owner, and limited to verified JPEG, PNG, or WebP uploads (5 MB). Back up `ala_eh` first, merge the reviewed migration, then have an authorized schema administrator apply it from the project root:
 
 ```text
 php tools/migrate.php

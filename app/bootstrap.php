@@ -138,6 +138,7 @@ function page_start(string $title, string $page = ''): void
     $safePage = h($page);
     $isAuthenticated = current_driver() !== null || current_admin() !== null;
     $layoutClass = $isAuthenticated ? 'has-sidebar' : '';
+    $photoCacheKey = bin2hex(random_bytes(8));
     
     echo <<<HTML
 <!doctype html>
@@ -186,13 +187,18 @@ HTML;
         if (current_admin() !== null) {
             $driver = current_admin();
             $adminEmail = h((string) ($driver['email'] ?? 'Admin'));
+            $initials = h(strtoupper(substr((string) ($driver['email'] ?? 'A'), 0, 1)));
             $adminRole = h(ucfirst((string) ($driver['role'] ?? 'admin')));
             $ownerLinks = ($driver['role'] ?? '') === 'owner'
                 ? '<a href="admin-users.php" class="sidebar-link"><span class="sidebar-link-icon">🔐</span><span class="sidebar-link-text">Users & admins</span></a><a href="admin-settings.php" class="sidebar-link"><span class="sidebar-link-icon">⚙️</span><span class="sidebar-link-text">Settings & activity</span></a>'
                 : '';
             echo <<<HTML
       <div class="sidebar-user">
-        <div class="sidebar-user-avatar">A</div>
+        <button class="sidebar-user-avatar" type="button" data-profile-photo-open aria-label="Manage profile picture" title="Manage profile picture">
+          <img src="profile-photo.php?v={$photoCacheKey}" alt="" data-profile-photo-avatar hidden>
+          <span data-profile-photo-initial>{$initials}</span>
+          <span class="profile-photo-camera" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8.2 5.5 9.4 4h5.2l1.2 1.5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h3.2ZM12 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 1.7a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/></svg></span>
+        </button>
         <div class="sidebar-user-info">
           <span class="sidebar-user-name">{$adminEmail}</span>
           <span class="sidebar-user-role">{$adminRole}</span>
@@ -251,7 +257,11 @@ HTML;
             $driverName = h((string) $driver['full_name']);
             echo <<<HTML
       <div class="sidebar-user">
-        <div class="sidebar-user-avatar">{$initials}</div>
+        <button class="sidebar-user-avatar" type="button" data-profile-photo-open aria-label="Manage profile picture" title="Manage profile picture">
+          <img src="profile-photo.php?v={$photoCacheKey}" alt="" data-profile-photo-avatar hidden>
+          <span data-profile-photo-initial>{$initials}</span>
+          <span class="profile-photo-camera" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8.2 5.5 9.4 4h5.2l1.2 1.5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h3.2ZM12 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 1.7a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/></svg></span>
+        </button>
         <div class="sidebar-user-info">
           <span class="sidebar-user-name">{$driverName}</span>
           <span class="sidebar-user-role">Driver</span>
@@ -338,6 +348,44 @@ HTML;
 <main class="site-main" id="main-content">
 HTML;
     }
+
+    if ($isAuthenticated) {
+        $profileUser = current_admin() ?? current_driver();
+        $profileName = current_admin() !== null
+            ? (string) ($profileUser['email'] ?? 'Admin')
+            : (string) ($profileUser['full_name'] ?? 'Driver');
+        $profileInitial = h(strtoupper(substr($profileName, 0, 1)));
+        $csrfField = csrf_field();
+        echo <<<HTML
+<dialog class="profile-photo-dialog" id="profile-photo-dialog" aria-labelledby="profile-photo-title">
+  <div class="profile-photo-dialog-header">
+    <div><span class="eyebrow"><span class="eyebrow-dot"></span> ACCOUNT SETTINGS</span><h2 id="profile-photo-title">Your profile picture</h2><p>Personalize your account with a photo that appears in the sidebar.</p></div>
+    <button class="admin-manage-dialog-close" type="button" data-profile-photo-close aria-label="Close dialog">×</button>
+  </div>
+  <form class="profile-photo-form" id="profile-photo-form" action="profile-photo.php" method="post" enctype="multipart/form-data">
+    {$csrfField}
+HTML;
+        echo <<<HTML
+    <div class="profile-photo-preview" aria-live="polite">
+      <img src="profile-photo.php?v={$photoCacheKey}" alt="Your current profile picture" data-profile-photo-preview hidden>
+      <span data-profile-photo-preview-initial>{$profileInitial}</span>
+      <span class="profile-photo-preview-ring" aria-hidden="true"></span>
+    </div>
+    <div class="profile-photo-upload-copy">
+      <strong>Choose a clear, recognizable photo</strong>
+      <span>JPEG, PNG, or WebP · up to 5 MB · maximum 16 megapixels</span>
+    </div>
+    <label class="profile-photo-file-label" for="profile-photo-file">Select a photo</label>
+    <input class="profile-photo-file-input" id="profile-photo-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
+    <p class="profile-photo-feedback" id="profile-photo-feedback" role="status" aria-live="polite"></p>
+    <div class="profile-photo-actions">
+      <button class="button button-outline profile-photo-remove" type="submit" name="action" value="remove" data-profile-photo-remove hidden>Remove photo</button>
+      <button class="button button-primary" type="submit" name="action" value="save" data-profile-photo-save>Save photo</button>
+    </div>
+  </form>
+</dialog>
+HTML;
+    }
 }
 
 function page_end(): void
@@ -356,6 +404,137 @@ const sidebarToggle = document.getElementById('sidebar-toggle');
 const mobileToggle = document.getElementById('mobile-toggle');
 const themeToggles = document.querySelectorAll('[data-theme-toggle]');
 const themeIsDark = document.documentElement.classList.contains('dark-mode');
+const profilePhotoDialog = document.getElementById('profile-photo-dialog');
+const profilePhotoForm = document.getElementById('profile-photo-form');
+const profilePhotoInput = document.getElementById('profile-photo-file');
+const profilePhotoFeedback = document.getElementById('profile-photo-feedback');
+const profilePhotoRemove = document.querySelector('[data-profile-photo-remove]');
+const profilePhotoSave = document.querySelector('[data-profile-photo-save]');
+let profilePhotoPreviewUrl = null;
+
+const setProfilePhoto = (source, updateAvatar = true) => {
+  const selector = updateAvatar
+    ? '[data-profile-photo-avatar], [data-profile-photo-preview]'
+    : '[data-profile-photo-preview]';
+  document.querySelectorAll(selector).forEach((image) => {
+    image.hidden = true;
+    image.src = source;
+  });
+};
+
+document.querySelectorAll('[data-profile-photo-avatar], [data-profile-photo-preview]').forEach((image) => {
+  image.addEventListener('load', () => {
+    image.hidden = false;
+    const fallback = image.parentElement.querySelector('[data-profile-photo-initial], [data-profile-photo-preview-initial]');
+    if (fallback) fallback.hidden = true;
+    if (image.matches('[data-profile-photo-avatar]') && profilePhotoRemove) profilePhotoRemove.hidden = false;
+  });
+  image.addEventListener('error', () => {
+    image.hidden = true;
+    const fallback = image.parentElement.querySelector('[data-profile-photo-initial], [data-profile-photo-preview-initial]');
+    if (fallback) fallback.hidden = false;
+    if (image.matches('[data-profile-photo-avatar]') && profilePhotoRemove) profilePhotoRemove.hidden = true;
+  });
+  if (image.complete && image.naturalWidth > 0) image.dispatchEvent(new Event('load'));
+});
+
+document.querySelectorAll('[data-profile-photo-open]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (profilePhotoInput) profilePhotoInput.value = '';
+    if (profilePhotoFeedback) profilePhotoFeedback.textContent = '';
+    if (profilePhotoPreviewUrl) {
+      URL.revokeObjectURL(profilePhotoPreviewUrl);
+      profilePhotoPreviewUrl = null;
+    }
+    setProfilePhoto(`profile-photo.php?v=\${Date.now()}`);
+    if (profilePhotoDialog && !profilePhotoDialog.open) profilePhotoDialog.showModal();
+  });
+});
+
+document.querySelectorAll('[data-profile-photo-close]').forEach((button) => {
+  button.addEventListener('click', () => profilePhotoDialog?.close());
+});
+
+if (profilePhotoDialog) {
+  profilePhotoDialog.addEventListener('click', (event) => {
+    if (event.target === profilePhotoDialog) profilePhotoDialog.close();
+  });
+  profilePhotoDialog.addEventListener('close', () => {
+    if (profilePhotoPreviewUrl) {
+      URL.revokeObjectURL(profilePhotoPreviewUrl);
+      profilePhotoPreviewUrl = null;
+    }
+    if (profilePhotoInput) profilePhotoInput.value = '';
+    setProfilePhoto(`profile-photo.php?v=\${Date.now()}`);
+  });
+}
+
+if (profilePhotoInput) {
+  profilePhotoInput.addEventListener('change', () => {
+    const file = profilePhotoInput.files?.[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      profilePhotoFeedback.textContent = 'Choose a JPEG, PNG, or WebP image smaller than 5 MB.';
+      profilePhotoInput.value = '';
+      return;
+    }
+    if (profilePhotoPreviewUrl) URL.revokeObjectURL(profilePhotoPreviewUrl);
+    profilePhotoPreviewUrl = URL.createObjectURL(file);
+    setProfilePhoto(profilePhotoPreviewUrl, false);
+    profilePhotoFeedback.textContent = '';
+  });
+}
+
+if (profilePhotoForm) {
+  profilePhotoForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const action = event.submitter?.value === 'remove' ? 'remove' : 'save';
+    if (action === 'save' && !profilePhotoInput?.files?.length) {
+      profilePhotoFeedback.textContent = 'Select a photo before saving.';
+      return;
+    }
+    const formData = new FormData(profilePhotoForm);
+    formData.set('action', action);
+    profilePhotoFeedback.textContent = action === 'remove' ? 'Removing your photo…' : 'Saving your photo…';
+    profilePhotoSave.disabled = true;
+    if (profilePhotoRemove) profilePhotoRemove.disabled = true;
+    try {
+      const response = await fetch(profilePhotoForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin'
+      });
+      const result = await response.json().catch(() => ({
+        message: 'The profile photo could not be updated. Please try again.'
+      }));
+      if (!response.ok) throw new Error(result.message || 'The profile photo could not be updated.');
+      if (profilePhotoPreviewUrl) {
+        URL.revokeObjectURL(profilePhotoPreviewUrl);
+        profilePhotoPreviewUrl = null;
+      }
+      if (action === 'remove') {
+        document.querySelectorAll('[data-profile-photo-avatar], [data-profile-photo-preview]').forEach((image) => {
+          image.removeAttribute('src');
+          image.hidden = true;
+          const fallback = image.parentElement.querySelector('[data-profile-photo-initial], [data-profile-photo-preview-initial]');
+          if (fallback) fallback.hidden = false;
+        });
+        if (profilePhotoRemove) profilePhotoRemove.hidden = true;
+      } else {
+        const updatedSource = `profile-photo.php?v=\${Date.now()}`;
+        setProfilePhoto(updatedSource);
+      }
+      profilePhotoInput.value = '';
+      profilePhotoFeedback.textContent = result.message;
+    } catch (error) {
+      profilePhotoFeedback.textContent = error instanceof Error ? error.message : 'The profile photo could not be updated.';
+    } finally {
+      profilePhotoSave.disabled = false;
+      if (profilePhotoRemove) profilePhotoRemove.disabled = false;
+    }
+  });
+}
 
 themeToggles.forEach((button) => {
   const icon = button.querySelector('[data-theme-icon]');
