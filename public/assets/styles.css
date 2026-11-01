@@ -2541,6 +2541,10 @@ h1, h2, h3, h4, h5, h6 {
   display: none;
 }
 
+.page-admin-dashboard .top-header {
+  display: none;
+}
+
 /* Mobile responsive sidebar */
 @media (max-width: 768px) {
   .sidebar {
@@ -2580,6 +2584,16 @@ h1, h2, h3, h4, h5, h6 {
 
   .top-header {
     padding: 0 16px;
+  }
+
+  .page-admin-dashboard .top-header {
+    display: flex;
+    min-height: 56px;
+    padding: 0 16px;
+  }
+
+  .page-admin-dashboard .top-header .page-title {
+    display: none;
   }
 
   .has-sidebar .site-main {
