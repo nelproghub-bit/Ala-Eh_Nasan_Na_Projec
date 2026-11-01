@@ -1,9 +1,3 @@
-CREATE DATABASE IF NOT EXISTS ala_eh
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE ala_eh;
-
 CREATE TABLE IF NOT EXISTS drivers (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     full_name VARCHAR(120) NOT NULL,
@@ -94,4 +88,10 @@ CREATE TABLE IF NOT EXISTS login_rate_limits (
     window_started_at DATETIME NOT NULL,
     blocked_until DATETIME NULL,
     PRIMARY KEY (bucket_key)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    version VARCHAR(191) NOT NULL,
+    applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (version)
 ) ENGINE=InnoDB;

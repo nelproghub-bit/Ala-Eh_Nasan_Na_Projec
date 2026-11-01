@@ -26,13 +26,16 @@ This application features a professional design system with:
 
 ## Setup
 
-1. Create a MySQL user/database, then apply `database/schema.sql` (it creates `ala_eh`).
-2. Copy `.env.example` to `.env`, then set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`. The application loads `.env` for local development; process environment variables take precedence. For a default local XAMPP installation with an empty root password, use `DB_USER=root` and leave `DB_PASSWORD` blank. Only use the root account for local development; production must use a dedicated least-privilege MySQL account.
-3. Keep `SESSION_COOKIE_SECURE=true` and serve the app over HTTPS in production. For local HTTP-only development, set it to `false` locally, then restore `true` before deployment.
-4. Configure the web server document root to `public/`; do not expose the project root, `app/`, or `database/` as web content. The root `.htaccess` blocks direct HTTP access to `.env` when using Apache.
-5. Ensure PHP has `pdo_mysql` and `mbstring` enabled.
-6. Serve using your PHP web server, for example `php -S 127.0.0.1:8000 -t public` after configuring the environment.
-7. Apply `database/schema.sql`, then open `public/admin-login.php` and choose **Create the first admin account**. First-admin registration is closed automatically after one account has been created. Admin credentials are stored as password hashes and are separate from driver accounts. Alternatively, create the first admin from the project root with `php tools/create_admin.php admin@example.com`.
+Follow [the shared MySQL setup guide](docs/shared-database-setup.md) to configure the one shared managed database, each developer's private TLS-enabled connection, and safe schema changes. All collaborators use the same `DB_NAME`; only their individual least-privilege usernames/passwords differ. Application credentials are never committed.
+
+1. Copy `.env.example` to `.env` and configure the connection and verified CA certificate for your environment. The application loads `.env` for local development; process environment variables take precedence.
+2. Keep `SESSION_COOKIE_SECURE=true` and serve the app over HTTPS in production. For local HTTP-only development, set it to `false` locally, then restore `true` before deployment.
+3. Configure the web server document root to `public/`; do not expose the project root, `app/`, or `database/` as web content. The root `.htaccess` blocks direct HTTP access to `.env` when using Apache.
+4. Ensure PHP has `pdo_mysql` and `mbstring` enabled.
+5. On a new, empty database, import `database/schema.sql` with `php tools/import_schema.php` using an authorized schema account. Then open `public/admin-login.php` and choose **Create the first admin account**. First-admin registration is closed automatically after one account has been created. Admin credentials are stored as password hashes and are separate from driver accounts. Alternatively, create the first admin from the project root with `php tools/create_admin.php admin@example.com`.
+6. Authorized schema maintainers can apply reviewed, versioned SQL changes with `php tools/migrate.php`. Use `php tools/check_database.php` to check local connectivity without exposing connection details.
+
+GitHub collaborators should be granted repository access through the repository's settings. Keep `.env`, database credentials, private keys, and downloaded CA files out of commits; review pull requests before merging schema or application changes. The shared database serves current records to each developer's next request, but the application does not automatically refresh pages in real time.
 
 Open `public/admin-login.php` to sign in, then review pending applications in the admin dashboard. Approval and rejection actions require an authenticated admin session and CSRF token. The optional CLI setup command asks for the password twice; input may be visible in the terminal.
 

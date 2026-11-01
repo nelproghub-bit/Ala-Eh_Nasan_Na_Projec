@@ -21,6 +21,9 @@ function load_local_environment(): void
         'DB_NAME',
         'DB_USER',
         'DB_PASSWORD',
+        'DB_SSL_CA',
+        'MIGRATION_DB_USER',
+        'MIGRATION_DB_PASSWORD',
         'SESSION_COOKIE_SECURE',
     ];
     foreach ($values as $name => $value) {
