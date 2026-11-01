@@ -2,6 +2,18 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../app/bootstrap.php';
 
+set_exception_handler(static function (Throwable $exception): void {
+    $requestId = bin2hex(random_bytes(6));
+    error_log('Profile photo request ' . $requestId . ' failed: ' . (string) $exception);
+    http_response_code(500);
+    header('Cache-Control: no-store');
+    header('Content-Type: application/json; charset=UTF-8');
+    echo json_encode([
+        'message' => 'The server could not save your photo. It was not changed. Please try again.',
+        'request_id' => $requestId,
+    ], JSON_THROW_ON_ERROR);
+});
+
 $isAdmin = current_admin() !== null;
 $isDriver = current_driver() !== null;
 if (!$isAdmin && !$isDriver) {

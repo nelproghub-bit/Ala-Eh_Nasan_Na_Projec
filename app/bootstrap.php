@@ -522,14 +522,22 @@ if (profilePhotoForm) {
       });
       const contentType = response.headers.get('content-type') || '';
       if (response.redirected || !contentType.toLowerCase().includes('application/json')) {
-        throw new Error(
-          response.redirected
-            ? 'Your sign-in session may have expired. Reload the page and sign in again.'
-            : 'The server could not save your photo. Check your connection and try again.'
-        );
+        if (response.redirected) {
+          throw new Error('Your sign-in session may have expired. Reload the page and sign in again.');
+        }
+        if (response.status === 413) {
+          throw new Error('The image exceeds the server upload limit. Choose a smaller photo.');
+        }
+        if (response.status >= 500) {
+          throw new Error(`The server could not save your photo (HTTP \${response.status}). It was not changed; please retry.`);
+        }
+        throw new Error(`The photo request was rejected (HTTP \${response.status}). Reload the page and try again.`);
       }
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'The profile photo could not be updated.');
+      if (!response.ok) {
+        const requestReference = result.request_id ? ` Reference: \${result.request_id}.` : '';
+        throw new Error((result.message || 'The profile photo could not be updated.') + requestReference);
+      }
       if (profilePhotoPreviewUrl) {
         URL.revokeObjectURL(profilePhotoPreviewUrl);
         profilePhotoPreviewUrl = null;
