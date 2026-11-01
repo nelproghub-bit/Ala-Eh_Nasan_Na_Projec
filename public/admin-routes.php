@@ -339,19 +339,38 @@ page_start('Terminals and routes', 'admin-routes');
           <td data-label="Landmark"><?= h((string) ($terminal['landmark'] ?? 'Not set')) ?></td>
           <td data-label="Coordinates"><?= $terminal['latitude'] === null ? 'Not set' : h((string) $terminal['latitude'] . ', ' . (string) $terminal['longitude']) ?></td>
           <td data-label="Status"><?= (int) $terminal['is_active'] === 1 ? 'Active' : 'Inactive' ?></td>
-          <td data-label="Edit"><details><summary>Edit terminal</summary><form method="post" class="admin-form-grid" action="admin-routes.php#terminals">
-            <?= csrf_field() ?><input type="hidden" name="action" value="save_terminal"><input type="hidden" name="terminal_id" value="<?= h((string) $terminal['id']) ?>">
-            <label>Area<input name="municipality" maxlength="100" required value="<?= h((string) $terminal['municipality']) ?>"></label>
-            <label>Location<input name="terminal_name" maxlength="120" required value="<?= h((string) $terminal['terminal_name']) ?>"></label>
-            <label>Landmark<input name="landmark" maxlength="255" required value="<?= h((string) ($terminal['landmark'] ?? '')) ?>" placeholder="Nearby landmark"></label>
-            <label>Status<select name="is_active"><option value="1" <?= (int) $terminal['is_active'] === 1 ? 'selected' : '' ?>>Active</option><option value="0" <?= (int) $terminal['is_active'] === 0 ? 'selected' : '' ?>>Inactive</option></select></label>
-            <button class="button button-primary" type="submit">Save terminal</button>
-          </form></details></td>
+          <td data-label="Edit"><button class="button button-outline admin-manage-button" type="button"
+            data-terminal-edit
+            data-terminal-id="<?= h((string) $terminal['id']) ?>"
+            data-area="<?= h((string) $terminal['municipality']) ?>"
+            data-location="<?= h((string) $terminal['terminal_name']) ?>"
+            data-landmark="<?= h((string) ($terminal['landmark'] ?? '')) ?>"
+            data-status="<?= (int) $terminal['is_active'] === 1 ? '1' : '0' ?>"
+            aria-label="Edit <?= h((string) $terminal['terminal_name']) ?>">Edit</button></td>
         </tr>
       <?php endforeach; ?>
       <?php if ($terminals === []): ?><tr><td colspan="5">No terminals configured.</td></tr><?php endif; ?>
     </tbody></table></div>
   </section>
+  <dialog class="admin-manage-dialog terminal-edit-dialog" id="terminal-edit-dialog" aria-labelledby="terminal-edit-title">
+    <div class="admin-manage-dialog-header">
+      <div><span class="eyebrow"><span class="eyebrow-dot"></span> TERMINAL MANAGEMENT</span><h2 id="terminal-edit-title">Edit terminal details</h2><p>Update the terminal area, location, landmark, and operating status.</p></div>
+      <button class="admin-manage-dialog-close" type="button" data-terminal-dialog-close aria-label="Close dialog">×</button>
+    </div>
+    <div class="terminal-edit-dialog-body">
+      <form method="post" class="admin-form-grid terminal-edit-form" action="admin-routes.php#terminals">
+        <?= csrf_field() ?><input type="hidden" name="action" value="save_terminal"><input type="hidden" name="terminal_id" data-terminal-field="id">
+        <label>Area<input name="municipality" data-terminal-field="area" maxlength="100" required placeholder="Batangas City"></label>
+        <label>Location<input name="terminal_name" data-terminal-field="location" maxlength="120" required placeholder="Terminal or place name"></label>
+        <label class="terminal-edit-landmark">Landmark<input name="landmark" data-terminal-field="landmark" maxlength="255" required placeholder="Nearby landmark"></label>
+        <label>Status<select name="is_active" data-terminal-field="status"><option value="1">Active</option><option value="0">Inactive</option></select></label>
+        <div class="terminal-edit-actions">
+          <button class="button button-outline" type="button" data-terminal-dialog-close>Cancel</button>
+          <button class="button button-primary" type="submit">Save terminal</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <section class="admin-queue" id="routes">
     <div class="admin-queue-heading"><div><h2>Authorized routes</h2><p>Routes connect two distinct active terminals; ordered boarding stops can be added below.</p></div></div>
@@ -398,4 +417,32 @@ page_start('Terminals and routes', 'admin-routes');
     <?php if ($routes === []): ?><div class="admin-empty"><p>No routes configured.</p></div><?php endif; ?>
   </section>
 </section>
+<script>
+const terminalEditDialog = document.getElementById('terminal-edit-dialog');
+const terminalEditFields = {
+      id: terminalEditDialog?.querySelector('[data-terminal-field="id"]'),
+      area: terminalEditDialog?.querySelector('[data-terminal-field="area"]'),
+      location: terminalEditDialog?.querySelector('[data-terminal-field="location"]'),
+      landmark: terminalEditDialog?.querySelector('[data-terminal-field="landmark"]'),
+      status: terminalEditDialog?.querySelector('[data-terminal-field="status"]')
+};
+
+document.querySelectorAll('[data-terminal-edit]').forEach((button) => {
+      button.addEventListener('click', () => {
+        Object.entries(terminalEditFields).forEach(([field, input]) => {
+          if (input) input.value = button.dataset[field === 'id' ? 'terminalId' : field] || '';
+        });
+        terminalEditDialog?.showModal();
+        terminalEditFields.location?.focus();
+      });
+});
+
+document.querySelectorAll('[data-terminal-dialog-close]').forEach((button) => {
+      button.addEventListener('click', () => terminalEditDialog?.close());
+});
+
+terminalEditDialog?.addEventListener('click', (event) => {
+      if (event.target === terminalEditDialog) terminalEditDialog.close();
+});
+</script>
 <?php page_end(); ?>

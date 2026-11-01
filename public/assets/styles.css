@@ -2946,6 +2946,50 @@ body.has-sidebar[class*="page-admin-"] .top-header {
   min-width: 88px;
 }
 
+.admin-manage-dialog.terminal-edit-dialog {
+  width: min(620px, calc(100vw - 32px));
+}
+
+.terminal-edit-dialog .admin-manage-dialog-header h2 {
+  margin-top: 12px;
+}
+
+.terminal-edit-dialog-body {
+  padding: 20px 28px 24px;
+}
+
+.terminal-edit-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0;
+}
+
+.terminal-edit-form label {
+  gap: 6px;
+}
+
+.terminal-edit-form input,
+.terminal-edit-form select {
+  min-height: 46px;
+}
+
+.terminal-edit-landmark {
+  grid-column: 1 / -1;
+}
+
+.terminal-edit-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.terminal-edit-actions .button {
+  min-width: 118px;
+  min-height: 44px;
+}
+
 .admin-manage-dialog {
   width: min(680px, calc(100vw - 32px));
   max-width: 100%;
@@ -3816,6 +3860,23 @@ html.dark-mode .profile-photo-preview {
 }
 
 @media (max-width: 480px) {
+  .terminal-edit-dialog-body {
+    padding: 20px;
+  }
+
+  .terminal-edit-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .terminal-edit-landmark,
+  .terminal-edit-actions {
+    grid-column: auto;
+  }
+
+  .terminal-edit-actions {
+    flex-direction: column-reverse;
+  }
+
   .profile-photo-dialog-header,
   .profile-photo-form {
     padding-right: 20px;
