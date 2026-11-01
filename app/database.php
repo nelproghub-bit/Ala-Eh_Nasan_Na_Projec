@@ -66,12 +66,12 @@ function database_connect_with_prefix(string $prefix, ?string $fallbackPrefix = 
 
 function database_required_setting(string $name, ?string $fallbackName = null): string
 {
-    $value = getenv($name);
-    if (($value === false || trim($value) === '') && $fallbackName !== null) {
-        $value = getenv($fallbackName);
+    $value = app_environment_setting($name);
+    if ($value === null && $fallbackName !== null) {
+        $value = app_environment_setting($fallbackName);
     }
 
-    if ($value === false || trim($value) === '') {
+    if ($value === null) {
         throw new RuntimeException($name . ' must be configured in the environment.');
     }
 

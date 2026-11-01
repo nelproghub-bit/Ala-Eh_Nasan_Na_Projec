@@ -39,7 +39,7 @@ $activity = $pdo->query(
 )->fetchAll();
 $flash = (string) ($_SESSION['admin_flash'] ?? '');
 unset($_SESSION['admin_flash']);
-$secureCookie = strtolower((string) (getenv('SESSION_COOKIE_SECURE') ?: 'true'));
+$secureCookie = strtolower(app_environment_setting('SESSION_COOKIE_SECURE') ?? 'true');
 $cookieSecureEnabled = !in_array($secureCookie, ['false', '0', 'off'], true);
 $tls = db()->query("SHOW SESSION STATUS LIKE 'Ssl_cipher'")->fetch(PDO::FETCH_NUM);
 $tlsVerified = is_array($tls) && isset($tls[1]) && $tls[1] !== '';

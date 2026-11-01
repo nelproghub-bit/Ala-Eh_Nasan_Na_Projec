@@ -3,6 +3,23 @@ declare(strict_types=1);
 
 ini_set('display_errors', '0');
 
+function app_environment_setting(string $name): ?string
+{
+    $value = getenv($name);
+    if (is_string($value) && trim($value) !== '') {
+        return $value;
+    }
+
+    foreach ([$_ENV, $_SERVER] as $source) {
+        $value = $source[$name] ?? null;
+        if (is_string($value) && trim($value) !== '') {
+            return $value;
+        }
+    }
+
+    return null;
+}
+
 function load_local_environment(): void
 {
     $environmentFile = dirname(__DIR__) . '/.env';
@@ -27,8 +44,12 @@ function load_local_environment(): void
         'SESSION_COOKIE_SECURE',
     ];
     foreach ($values as $name => $value) {
-        if (in_array($name, $allowedNames, true) && is_string($value) && getenv($name) === false) {
-            putenv($name . '=' . $value);
+        if (
+            in_array($name, $allowedNames, true)
+            && is_string($value)
+            && app_environment_setting($name) === null
+        ) {
+            $_ENV[$name] = $value;
         }
     }
 }
@@ -42,8 +63,7 @@ set_exception_handler(static function (Throwable $exception): void {
     echo 'An unexpected server error occurred.';
 });
 
-$secureCookieSetting = getenv('SESSION_COOKIE_SECURE');
-$secureCookieSetting = strtolower($secureCookieSetting === false ? 'true' : $secureCookieSetting);
+$secureCookieSetting = strtolower(app_environment_setting('SESSION_COOKIE_SECURE') ?? 'true');
 $secureCookie = !in_array($secureCookieSetting, ['false', '0', 'off'], true);
 
 ini_set('session.use_strict_mode', '1');

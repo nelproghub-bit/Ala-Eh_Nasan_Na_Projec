@@ -60,8 +60,10 @@ page_start('Trip monitoring', 'admin-trips');
   <?php if ($flash !== ''): ?><p class="message message-success admin-flash" role="status"><?= h($flash) ?></p><?php endif; ?>
   <section class="admin-queue">
     <div class="admin-queue-heading"><div><h2>Live jeepney locations</h2><p>Only drivers who start a trip and grant browser location permission appear. Positions may be stale or unavailable.</p></div><span id="map-update-status" role="status" aria-live="polite">Loading location updates…</span></div>
-    <div id="trip-map" class="admin-map" aria-label="Map showing active jeepney trip locations"></div>
-    <p class="map-attribution">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>. Precise locations are visible only to authorized admins.</p>
+    <p id="route-map-status" class="route-map-status" role="status" aria-live="polite">Loading planned route lines…</p>
+    <div id="trip-map" class="admin-map" aria-label="Map showing approximate Batangas–Mabini road route and active jeepney locations"></div>
+    <div class="route-map-legend"><span><i class="route-map-line" aria-hidden="true"></i> Approximate road route</span><span><i class="route-map-stop" aria-hidden="true"></i> Planned route stop</span><span>Landmark pins are approximate; confirm exact locations locally.</span></div>
+    <p class="map-attribution">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>. Road routing by <a href="https://project-osrm.org/" target="_blank" rel="noopener noreferrer">OSRM</a>. Precise jeepney locations are visible only to authorized admins.</p>
     <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Trip</th><th>Driver / vehicle</th><th>Route</th><th>Last location</th><th>Action</th></tr></thead><tbody id="active-trip-rows">
       <?php foreach ($activeTrips as $trip): ?>
         <tr><td data-label="Trip">#<?= h((string) $trip['id']) ?><small>Started <?= h(date('M j, g:i A', strtotime((string) $trip['started_at']))) ?></small></td>
@@ -92,6 +94,7 @@ page_start('Trip monitoring', 'admin-trips');
 <script>
 (() => {
   const status = document.getElementById('map-update-status');
+  const routeStatus = document.getElementById('route-map-status');
   const mapElement = document.getElementById('trip-map');
   const activeRows = document.getElementById('active-trip-rows');
   const refreshSeconds = <?= json_encode($refreshSeconds) ?>;
@@ -99,8 +102,12 @@ page_start('Trip monitoring', 'admin-trips');
   const canCancelTrips = <?= json_encode(in_array($admin['role'] ?? '', ['owner', 'admin'], true)) ?>;
   const defaultMapCenter = [13.7565, 121.0583];
   let map = null;
-  let hasCenteredOnLocations = false;
+  let routeLinesLoaded = false;
+  let hasSetInitialBounds = false;
+  let latestValidLocations = [];
+  const routeBoundsPoints = [];
   const markers = new Map();
+  let routeLayer = null;
   const jeepneyIcon = window.L ? L.divIcon({
     className: 'jeepney-map-icon',
     html: '<span class="jeepney-map-marker" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 3.75h14A2.25 2.25 0 0 1 21.25 6v11A2.25 2.25 0 0 1 19 19.25h-.5v1a1 1 0 0 1-2 0v-1h-9v1a1 1 0 0 1-2 0v-1H5A2.25 2.25 0 0 1 2.75 17V6A2.25 2.25 0 0 1 5 3.75Zm-.25 3v4h14.5v-4a.25.25 0 0 0-.25-.25H5a.25.25 0 0 0-.25.25Zm0 6v4.25c0 .138.112.25.25.25h14a.25.25 0 0 0 .25-.25v-4.25H4.75ZM7 14a1.25 1.25 0 1 1 0 2.5A1.25 1.25 0 0 1 7 14Zm10 0a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg></span>',
@@ -115,10 +122,123 @@ page_start('Trip monitoring', 'admin-trips');
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+    routeLayer = L.featureGroup().addTo(map);
   };
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[char]));
+  const fitInitialBounds = () => {
+    if (!routeLinesLoaded || hasSetInitialBounds || !map) return;
+    const points = [...routeBoundsPoints, ...latestValidLocations.map(point => [
+      Number(point.latitude), Number(point.longitude)
+    ])];
+    if (points.length) {
+      map.fitBounds(L.latLngBounds(points), {padding: [36, 36], maxZoom: 12});
+    }
+    hasSetInitialBounds = true;
+  };
+  const loadRouteLines = async () => {
+    try {
+      const response = await fetch('api/admin-route-lines.php', {
+        headers: {'Accept': 'application/json'},
+        cache: 'no-store'
+      });
+      if (!response.ok) throw new Error('Planned route data is unavailable.');
+      const data = await response.json();
+      const routes = Array.isArray(data.routes) ? data.routes : [];
+      if (!routes.length) {
+        routeStatus.textContent = 'No active routes have planned stops configured.';
+        return;
+      }
+
+      const colors = ['#e11d48', '#0f766e', '#7c3aed', '#b45309'];
+      let drawnRoutes = 0;
+      let routesWithoutRoadLines = 0;
+      let missingCoordinates = 0;
+      const routeStops = [];
+      for (const [index, route] of routes.entries()) {
+        const color = colors[index % colors.length];
+        const stops = Array.isArray(route.stops) ? route.stops : [];
+        const locatedStops = stops.filter(stop =>
+          stop.latitude !== null && stop.longitude !== null &&
+          Number.isFinite(Number(stop.latitude)) &&
+          Number.isFinite(Number(stop.longitude)) &&
+          Number(stop.latitude) >= -90 && Number(stop.latitude) <= 90 &&
+          Number(stop.longitude) >= -180 && Number(stop.longitude) <= 180
+        );
+        missingCoordinates += stops.length - locatedStops.length;
+        for (const stop of locatedStops) {
+          const position = [Number(stop.latitude), Number(stop.longitude)];
+          routeBoundsPoints.push(position);
+          const title = escapeHtml(stop.name);
+          const popup = `<strong>${title}</strong><br>${escapeHtml(stop.area)}<br>${escapeHtml(stop.landmark)}`;
+          routeStops.push({position, color, popup});
+        }
+        if (locatedStops.length < 2) {
+          routesWithoutRoadLines++;
+          continue;
+        }
+
+        const coordinates = locatedStops.map(stop => `${stop.longitude},${stop.latitude}`).join(';');
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 12000);
+        let roadData;
+        try {
+          const roadResponse = await fetch(
+            `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson&steps=false`,
+            {headers: {'Accept': 'application/json'}, cache: 'no-store', signal: controller.signal}
+          );
+          if (!roadResponse.ok) {
+            routesWithoutRoadLines++;
+            continue;
+          }
+          roadData = await roadResponse.json();
+        } catch {
+          routesWithoutRoadLines++;
+          continue;
+        } finally {
+          window.clearTimeout(timeout);
+        }
+        const roadCoordinates = roadData?.routes?.[0]?.geometry?.coordinates;
+        if (roadData.code !== 'Ok' || !Array.isArray(roadCoordinates) || roadCoordinates.length < 2) {
+          routesWithoutRoadLines++;
+          continue;
+        }
+
+        const roadPoints = roadCoordinates.map(([longitude, latitude]) => [latitude, longitude]);
+        routeBoundsPoints.push(...roadPoints);
+        L.polyline(roadPoints, {color: '#fff', opacity: 0.9, weight: 10, lineCap: 'round', lineJoin: 'round'}).addTo(routeLayer);
+        L.polyline(roadPoints, {color, opacity: 0.92, weight: 5, lineCap: 'round', lineJoin: 'round'}).addTo(routeLayer);
+        drawnRoutes++;
+      }
+      for (const stop of routeStops) {
+        L.circleMarker(stop.position, {
+          radius: 7,
+          color: '#fff',
+          weight: 3,
+          fillColor: stop.color,
+          fillOpacity: 1
+        }).bindPopup(stop.popup).addTo(routeLayer);
+      }
+      if (drawnRoutes) {
+        routeStatus.textContent = `Showing ${drawnRoutes} approximate road route${drawnRoutes === 1 ? '' : 's'} with planned stops. Map routing follows available roads, not verified transit paths.`
+          + (missingCoordinates ? ` ${missingCoordinates} stop${missingCoordinates === 1 ? '' : 's'} have no coordinates.` : '')
+          + (routesWithoutRoadLines ? ` ${routesWithoutRoadLines} route${routesWithoutRoadLines === 1 ? '' : 's'} could not be drawn.` : '');
+      } else {
+        routeStatus.textContent = (routeStops.length
+          ? 'Planned stop pins are shown, but road-routing is unavailable; no route line could be drawn.'
+          : 'Planned stops are missing usable coordinates or road-routing is unavailable; no route line could be drawn.')
+          + (missingCoordinates ? ` ${missingCoordinates} stop${missingCoordinates === 1 ? '' : 's'} have no coordinates.` : '');
+      }
+    } catch (error) {
+      routeStatus.textContent = error instanceof Error && error.name === 'AbortError'
+        ? 'Road routing took too long. Planned stops may still be available after refreshing.'
+        : 'Approximate planned route lines are unavailable. Live jeepney locations can still load.';
+    } finally {
+      routeLinesLoaded = true;
+      fitInitialBounds();
+    }
+  };
   const updateMap = async () => {
     try {
       const response = await fetch('api/admin-locations.php', {headers: {'Accept': 'application/json'}, cache: 'no-store'});
@@ -126,6 +246,9 @@ page_start('Trip monitoring', 'admin-trips');
       const data = await response.json();
       const locations = Array.isArray(data.locations) ? data.locations : [];
       const valid = locations.filter(point => point.latitude !== null && point.longitude !== null);
+      latestValidLocations = valid.filter(point =>
+        Number.isFinite(Number(point.latitude)) && Number.isFinite(Number(point.longitude))
+      );
       activeRows.replaceChildren();
       for (const point of locations) {
         const row = document.createElement('tr');
@@ -199,11 +322,7 @@ page_start('Trip monitoring', 'admin-trips');
           markers.delete(key);
         }
       }
-      if (valid.length && !hasCenteredOnLocations) {
-        const bounds = L.latLngBounds(valid.map(point => [Number(point.latitude), Number(point.longitude)]));
-        map.fitBounds(bounds, {padding: [36, 36], maxZoom: 15});
-        hasCenteredOnLocations = true;
-      }
+      fitInitialBounds();
       status.textContent = valid.length
         ? `${valid.length} jeepney location${valid.length === 1 ? '' : 's'} · Refreshes every ${refreshSeconds}s · Updated ${new Date().toLocaleTimeString()}`
         : locations.length
@@ -214,6 +333,7 @@ page_start('Trip monitoring', 'admin-trips');
     }
   };
   initializeMap();
+  loadRouteLines();
   updateMap();
   window.setInterval(updateMap, refreshSeconds * 1000);
 })();
