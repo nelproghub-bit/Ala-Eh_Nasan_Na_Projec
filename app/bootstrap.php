@@ -533,7 +533,7 @@ if (profilePhotoForm) {
     profilePhotoSave.disabled = true;
     if (profilePhotoRemove) profilePhotoRemove.disabled = true;
     try {
-      const response = await fetch(profilePhotoForm.action, {
+      const response = await fetch(profilePhotoEndpoint, {
         method: 'POST',
         body: formData,
         headers: { Accept: 'application/json' },
