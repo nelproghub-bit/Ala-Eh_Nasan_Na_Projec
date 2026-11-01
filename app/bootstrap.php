@@ -153,6 +153,15 @@ function page_start(string $title, string $page = ''): void
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
+  <script>
+    try {
+      if (localStorage.getItem('alaEhTheme') === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+    } catch (error) {
+      console.warn('Theme preference could not be restored.', error);
+    }
+  </script>
 </head>
 <body class="page-{$safePage} {$layoutClass}">
 HTML;
@@ -221,6 +230,10 @@ HTML;
         </a>
       </div>
       <div class="sidebar-footer">
+        <button class="sidebar-theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+          <span class="sidebar-link-icon" data-theme-icon aria-hidden="true">🌙</span>
+          <span class="sidebar-link-text" data-theme-label>Dark mode</span>
+        </button>
         <form method="post" action="admin-logout.php">
 HTML;
         echo csrf_field();
@@ -275,6 +288,10 @@ HTML;
         </a>
       </div>
       <div class="sidebar-footer">
+        <button class="sidebar-theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+          <span class="sidebar-link-icon" data-theme-icon aria-hidden="true">🌙</span>
+          <span class="sidebar-link-text" data-theme-label>Dark mode</span>
+        </button>
         <form method="post" action="logout.php">
 HTML;
         echo csrf_field();
@@ -337,6 +354,31 @@ function page_end(): void
 const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 const mobileToggle = document.getElementById('mobile-toggle');
+const themeToggles = document.querySelectorAll('[data-theme-toggle]');
+const themeIsDark = document.documentElement.classList.contains('dark-mode');
+
+themeToggles.forEach((button) => {
+  const icon = button.querySelector('[data-theme-icon]');
+  const label = button.querySelector('[data-theme-label]');
+  button.setAttribute('aria-pressed', String(themeIsDark));
+  button.setAttribute('aria-label', themeIsDark ? 'Switch to light mode' : 'Switch to dark mode');
+  if (icon) icon.textContent = themeIsDark ? '☀️' : '🌙';
+  if (label) label.textContent = themeIsDark ? 'Light mode' : 'Dark mode';
+
+  button.addEventListener('click', () => {
+    const enableDarkMode = !document.documentElement.classList.contains('dark-mode');
+    document.documentElement.classList.toggle('dark-mode', enableDarkMode);
+    button.setAttribute('aria-pressed', String(enableDarkMode));
+    button.setAttribute('aria-label', enableDarkMode ? 'Switch to light mode' : 'Switch to dark mode');
+    if (icon) icon.textContent = enableDarkMode ? '☀️' : '🌙';
+    if (label) label.textContent = enableDarkMode ? 'Light mode' : 'Dark mode';
+    try {
+      localStorage.setItem('alaEhTheme', enableDarkMode ? 'dark' : 'light');
+    } catch (error) {
+      console.warn('Theme preference could not be saved.', error);
+    }
+  });
+});
 
 if (sidebarToggle) {
   sidebarToggle.addEventListener('click', () => {

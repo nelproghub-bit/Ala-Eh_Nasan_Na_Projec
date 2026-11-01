@@ -3070,6 +3070,274 @@ body.has-sidebar[class*="page-admin-"] .top-header {
   }
 }
 
+.sidebar-theme-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-theme-toggle:hover {
+  color: var(--blue-700);
+  background: var(--blue-50);
+}
+
+.sidebar.collapsed .sidebar-theme-toggle {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.sidebar.collapsed .sidebar-theme-toggle .sidebar-link-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+html.dark-mode {
+  color-scheme: dark;
+  --blue-950: #f5f5f5;
+  --blue-100: #171717;
+  --blue-50: #101010;
+  --page-background: #000;
+  --ink: #f5f5f5;
+  --ink-lighter: #e5e5e5;
+  --muted: #a3a3a3;
+  --muted-lighter: #737373;
+  --line: #292929;
+  --white: #000;
+  --shadow: 0 20px 60px rgb(0 0 0 / 55%);
+  --shadow-lg: 0 25px 75px rgb(0 0 0 / 65%);
+  --shadow-xl: 0 30px 90px rgb(0 0 0 / 75%);
+}
+
+html.dark-mode body {
+  color: var(--ink);
+  background: #000;
+}
+
+html.dark-mode .app-layout,
+html.dark-mode .app-content,
+html.dark-mode .site-main,
+html.dark-mode .dashboard-wrap,
+html.dark-mode .vehicle-page,
+html.dark-mode .route-page,
+html.dark-mode .driver-profile-page,
+html.dark-mode .admin-dashboard {
+  background: #000;
+}
+
+html.dark-mode .sidebar,
+html.dark-mode .top-header,
+html.dark-mode .site-header,
+html.dark-mode .site-footer,
+html.dark-mode .sidebar-header,
+html.dark-mode .sidebar-user,
+html.dark-mode .sidebar-footer {
+  color: var(--ink);
+  background: #050505;
+  border-color: var(--line);
+}
+
+html.dark-mode .sidebar-theme-toggle {
+  color: #d4d4d4;
+}
+
+html.dark-mode .sidebar-theme-toggle:hover {
+  color: #fff;
+  background: #171717;
+}
+
+html.dark-mode .sidebar-link,
+html.dark-mode .sidebar-logout {
+  color: #a3a3a3;
+}
+
+html.dark-mode .sidebar-link:hover,
+html.dark-mode .sidebar-logout:hover {
+  color: #fff;
+  background: #171717;
+}
+
+html.dark-mode .sidebar-link.active {
+  color: #fff;
+  background: linear-gradient(135deg, #303030, #171717);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 45%);
+}
+
+html.dark-mode .sidebar-brand-name,
+html.dark-mode .sidebar-user-name,
+html.dark-mode .page-title,
+html.dark-mode .admin-queue-heading h2,
+html.dark-mode .admin-stat strong,
+html.dark-mode .admin-stat-label,
+html.dark-mode .admin-table td strong,
+html.dark-mode .admin-settings-grid h2,
+html.dark-mode .driver-profile-card-heading h2,
+html.dark-mode .vehicle-card-heading h2,
+html.dark-mode .vehicle-approved-heading h2,
+html.dark-mode .journey-title,
+html.dark-mode .journey-step strong {
+  color: var(--ink);
+}
+
+html.dark-mode .admin-queue,
+html.dark-mode .admin-stat,
+html.dark-mode .admin-manage-dialog,
+html.dark-mode .admin-route-card,
+html.dark-mode .admin-empty,
+html.dark-mode .driver-profile-card,
+html.dark-mode .vehicle-card,
+html.dark-mode .vehicle-approved-card,
+html.dark-mode .vehicle-status-banner,
+html.dark-mode .vehicle-driver-chip,
+html.dark-mode .registration-card,
+html.dark-mode .auth-panel,
+html.dark-mode .application-card,
+html.dark-mode .next-step-card,
+html.dark-mode .dashboard-heading,
+html.dark-mode .dashboard-footer-note,
+html.dark-mode .driver-vehicle-link,
+html.dark-mode .journey-card,
+html.dark-mode .floating-badge,
+html.dark-mode .admin-route-card .admin-queue-heading,
+html.dark-mode .admin-manage-dialog-header {
+  color: var(--ink);
+  background: #080808;
+  border-color: var(--line);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 35%);
+}
+
+html.dark-mode .admin-queue-heading,
+html.dark-mode .admin-table th,
+html.dark-mode .admin-table tbody tr:hover,
+html.dark-mode .admin-table tbody tr,
+html.dark-mode .admin-table tr,
+html.dark-mode .admin-filters,
+html.dark-mode .document-list li {
+  color: var(--ink);
+  background: #0d0d0d;
+  border-color: var(--line);
+}
+
+html.dark-mode .admin-table td,
+html.dark-mode .admin-queue-heading p,
+html.dark-mode .admin-manage-dialog-header p,
+html.dark-mode .admin-manage-section-heading p,
+html.dark-mode .driver-profile-card-heading p,
+html.dark-mode .vehicle-card-heading p,
+html.dark-mode .vehicle-approved-heading p,
+html.dark-mode .admin-security-list dt {
+  color: var(--muted);
+}
+
+html.dark-mode .admin-table td {
+  border-color: #202020;
+}
+
+html.dark-mode input,
+html.dark-mode select,
+html.dark-mode textarea,
+html.dark-mode .admin-form-grid input,
+html.dark-mode .admin-form-grid select,
+html.dark-mode .admin-inline-form input,
+html.dark-mode .admin-inline-form select,
+html.dark-mode .admin-route-card input,
+html.dark-mode .admin-route-card select,
+html.dark-mode .vehicle-form input,
+html.dark-mode .driver-profile-form input {
+  color: #f5f5f5;
+  background: #050505;
+  border-color: #383838;
+}
+
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder {
+  color: #737373;
+}
+
+html.dark-mode .admin-manage-dialog-close,
+html.dark-mode .admin-filters a.is-active,
+html.dark-mode .step-number {
+  color: #f5f5f5;
+  background: #171717;
+  border-color: #383838;
+}
+
+html.dark-mode .admin-filters a {
+  color: #a3a3a3;
+}
+
+html.dark-mode .admin-filters a:hover {
+  color: #fff;
+  background: #1f1f1f;
+}
+
+html.dark-mode .admin-stat-icon,
+html.dark-mode .vehicle-card-icon,
+html.dark-mode .vehicle-approved-icon {
+  color: #e5e5e5;
+  background: #1c1c1c;
+}
+
+html.dark-mode .admin-page-heading {
+  color: #fff;
+}
+
+html.dark-mode .admin-page-heading h1,
+html.dark-mode .admin-page-heading p,
+html.dark-mode .admin-page-heading .eyebrow {
+  color: #fff;
+}
+
+html.dark-mode .admin-page-heading .eyebrow-dot {
+  background: #a3a3a3;
+  box-shadow: 0 0 0 4px rgb(255 255 255 / 14%);
+}
+
+html.dark-mode .button-outline {
+  color: #f5f5f5;
+  background: #111;
+  border-color: #383838;
+}
+
+html.dark-mode .button-outline:hover {
+  background: #222;
+}
+
+html.dark-mode .admin-status.status-verified,
+html.dark-mode .admin-status.status-rejected,
+html.dark-mode .button-approve,
+html.dark-mode .button-reject {
+  filter: brightness(0.82);
+}
+
+html.dark-mode .vehicle-status-banner.vehicle-status-pending,
+html.dark-mode .vehicle-status-banner.vehicle-status-rejected {
+  color: var(--ink);
+  background: #101010;
+  border-color: #383838;
+}
+
+html.dark-mode .admin-manage-dialog::backdrop {
+  background: rgb(0 0 0 / 82%);
+}
+
+html.dark-mode .admin-map {
+  background: #111;
+}
+
 .admin-dashboard .admin-overview-stats {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: stretch;
