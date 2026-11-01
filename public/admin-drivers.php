@@ -223,39 +223,80 @@ page_start('Driver management', 'admin-drivers');
             <td data-label="Documents"><a href="#documents"><?= h((string) $driver['document_count']) ?> files</a></td>
             <td data-label="Manage">
               <?php if (($admin['role'] ?? '') !== 'viewer'): ?>
-                <details><summary>Edit details</summary>
-                  <form method="post" class="admin-form-grid" action="admin-drivers.php">
-                    <?= csrf_field() ?><input type="hidden" name="driver_id" value="<?= h((string) $driver['id']) ?>"><input type="hidden" name="action" value="update_driver">
-                    <label>Full name<input name="full_name" required maxlength="120" value="<?= h((string) $driver['full_name']) ?>"></label>
-                    <label>Email<input type="email" name="email" required maxlength="254" value="<?= h((string) $driver['email']) ?>"></label>
-                    <label>Phone<input name="phone" required maxlength="32" value="<?= h((string) $driver['phone']) ?>"></label>
-                    <label>License number<input name="license_number" required maxlength="64" value="<?= h((string) $driver['license_number']) ?>"></label>
-                    <button class="button button-outline" type="submit">Save details</button>
-                  </form>
-                </details>
-                <?php if ($driver['verification_status'] === 'pending_verification'): ?>
-                  <div class="admin-actions">
-                    <?php foreach (['verified' => 'Approve', 'rejected' => 'Reject'] as $status => $label): ?>
-                    <form method="post" action="admin-drivers.php">
-                      <?= csrf_field() ?>
-                      <input type="hidden" name="driver_id" value="<?= h((string) $driver['id']) ?>">
-                      <input type="hidden" name="action" value="verification">
-                      <button class="button <?= $status === 'verified' ? 'button-approve' : 'button-reject' ?>" name="status" value="<?= h($status) ?>"><?= h($label) ?></button>
-                    </form>
-                    <?php endforeach; ?>
+                <button class="button button-outline button-small admin-manage-button" type="button"
+                        data-open-driver-dialog="manage-driver-<?= h((string) $driver['id']) ?>"
+                        aria-haspopup="dialog">
+                  Manage
+                </button>
+                <dialog class="admin-manage-dialog" id="manage-driver-<?= h((string) $driver['id']) ?>"
+                        aria-labelledby="manage-driver-title-<?= h((string) $driver['id']) ?>">
+                  <div class="admin-manage-dialog-header">
+                    <div>
+                      <span class="eyebrow"><span class="eyebrow-dot"></span> DRIVER ACCOUNT</span>
+                      <h2 id="manage-driver-title-<?= h((string) $driver['id']) ?>">Manage <?= h((string) $driver['full_name']) ?></h2>
+                      <p><?= h((string) $driver['email']) ?> · <?= h((string) $driver['phone']) ?></p>
+                    </div>
+                    <button class="admin-manage-dialog-close" type="button"
+                            data-close-driver-dialog aria-label="Close driver management dialog">×</button>
                   </div>
-                <?php endif; ?>
-                <form method="post" class="admin-inline-form" action="admin-drivers.php">
-                  <?= csrf_field() ?><input type="hidden" name="driver_id" value="<?= h((string) $driver['id']) ?>">
-                  <select name="status" aria-label="Set driver access status">
-                    <?php foreach (['active', 'suspended', 'deactivated'] as $status): ?>
-                      <option value="<?= h($status) ?>" <?= $driver['account_status'] === $status ? 'selected' : '' ?>><?= h(ucfirst($status)) ?></option>
-                    <?php endforeach; ?>
-                  </select>
-                  <input type="hidden" name="action" value="account_status">
-                  <button class="button button-outline button-small" type="submit">Save access</button>
-                  <label>Reason <input name="reason" maxlength="500" placeholder="Optional"></label>
-                </form>
+                  <div class="admin-manage-dialog-body">
+                    <section class="admin-manage-section">
+                      <div class="admin-manage-section-heading">
+                        <div><h3>Driver details</h3><p>Update the driver's contact and license information.</p></div>
+                        <span class="admin-status status-<?= h((string) $driver['verification_status']) ?>"><?= h(str_replace('_', ' ', (string) $driver['verification_status'])) ?></span>
+                      </div>
+                      <form method="post" class="admin-form-grid admin-manage-form" action="admin-drivers.php">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="driver_id" value="<?= h((string) $driver['id']) ?>">
+                        <input type="hidden" name="action" value="update_driver">
+                        <label>Full name<input name="full_name" required maxlength="120" value="<?= h((string) $driver['full_name']) ?>"></label>
+                        <label>Email<input type="email" name="email" required maxlength="254" value="<?= h((string) $driver['email']) ?>"></label>
+                        <label>Phone<input name="phone" required maxlength="32" value="<?= h((string) $driver['phone']) ?>"></label>
+                        <label>License number<input name="license_number" required maxlength="64" value="<?= h((string) $driver['license_number']) ?>"></label>
+                        <button class="button button-outline" type="submit">Save details</button>
+                      </form>
+                    </section>
+                    <?php if ($driver['verification_status'] === 'pending_verification'): ?>
+                      <section class="admin-manage-section">
+                        <div class="admin-manage-section-heading">
+                          <div><h3>Application review</h3><p>Approve or reject this driver's registration.</p></div>
+                        </div>
+                        <div class="admin-actions">
+                          <?php foreach (['verified' => 'Approve application', 'rejected' => 'Reject application'] as $status => $label): ?>
+                            <form method="post" action="admin-drivers.php">
+                              <?= csrf_field() ?>
+                              <input type="hidden" name="driver_id" value="<?= h((string) $driver['id']) ?>">
+                              <input type="hidden" name="action" value="verification">
+                              <button class="button <?= $status === 'verified' ? 'button-approve' : 'button-reject' ?>"
+                                      name="status" value="<?= h($status) ?>"><?= h($label) ?></button>
+                            </form>
+                          <?php endforeach; ?>
+                        </div>
+                      </section>
+                    <?php endif; ?>
+                    <section class="admin-manage-section">
+                      <div class="admin-manage-section-heading">
+                        <div><h3>Account access</h3><p>Set the driver's account status and optionally record a reason.</p></div>
+                      </div>
+                      <form method="post" class="admin-form-grid admin-manage-form admin-access-form" action="admin-drivers.php">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="driver_id" value="<?= h((string) $driver['id']) ?>">
+                        <input type="hidden" name="action" value="account_status">
+                        <label>Access status
+                          <select name="status">
+                            <?php foreach (['active', 'suspended', 'deactivated'] as $status): ?>
+                              <option value="<?= h($status) ?>" <?= $driver['account_status'] === $status ? 'selected' : '' ?>><?= h(ucfirst($status)) ?></option>
+                            <?php endforeach; ?>
+                          </select>
+                        </label>
+                        <label>Reason <span class="admin-field-hint">(optional)</span>
+                          <input name="reason" maxlength="500" value="<?= h((string) ($driver['reason'] ?? '')) ?>" placeholder="Add a note about this access change">
+                        </label>
+                        <button class="button button-primary" type="submit">Save access</button>
+                      </form>
+                    </section>
+                  </div>
+                </dialog>
               <?php else: ?><span class="admin-no-action">View only</span><?php endif; ?>
             </td>
           </tr>
@@ -299,4 +340,28 @@ page_start('Driver management', 'admin-drivers');
     </div>
   </section>
 </section>
+<script>
+document.querySelectorAll('[data-open-driver-dialog]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const dialog = document.getElementById(button.dataset.openDriverDialog);
+    if (dialog instanceof HTMLDialogElement) {
+      dialog.showModal();
+    }
+  });
+});
+
+document.querySelectorAll('[data-close-driver-dialog]').forEach((button) => {
+  button.addEventListener('click', () => {
+    button.closest('dialog')?.close();
+  });
+});
+
+document.querySelectorAll('.admin-manage-dialog').forEach((dialog) => {
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) {
+      dialog.close();
+    }
+  });
+});
+</script>
 <?php page_end(); ?>

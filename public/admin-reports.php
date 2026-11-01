@@ -88,8 +88,9 @@ $tripQuery->execute(['from_date' => $from, 'to_date' => $to]);
 $tripCounts = $tripQuery->fetch();
 $vehicleCounts = $pdo->query(
     "SELECT COUNT(*) AS registered,
-        COALESCE(SUM(verification_status = 'verified'), 0) AS verified,
+        COALESCE(SUM(j.verification_status = 'verified'), 0) AS verified,
         COALESCE(SUM(s.operational_status = 'active'
+            AND j.verification_status = 'verified'
             AND d.verification_status = 'verified'
             AND COALESCE(ds.account_status, 'active') = 'active'), 0) AS active
      FROM jeepney_profiles j
