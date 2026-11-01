@@ -333,11 +333,10 @@ page_start('Terminals and routes', 'admin-routes');
       <label>Landmark<input name="landmark" maxlength="255" required placeholder="Nearby landmark"></label>
       <button class="button button-primary" type="submit">Add terminal</button>
     </form>
-    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Area / location</th><th>Landmark</th><th>Coordinates</th><th>Status</th><th>Edit</th></tr></thead><tbody>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Area / location</th><th>Landmark</th><th>Status</th><th>Edit</th></tr></thead><tbody>
       <?php foreach ($terminals as $terminal): ?>
         <tr><td data-label="Area / location"><strong><?= h((string) $terminal['municipality']) ?></strong><small><?= h((string) $terminal['terminal_name']) ?></small></td>
           <td data-label="Landmark"><?= h((string) ($terminal['landmark'] ?? 'Not set')) ?></td>
-          <td data-label="Coordinates"><?= $terminal['latitude'] === null ? 'Not set' : h((string) $terminal['latitude'] . ', ' . (string) $terminal['longitude']) ?></td>
           <td data-label="Status"><?= (int) $terminal['is_active'] === 1 ? 'Active' : 'Inactive' ?></td>
           <td data-label="Edit"><button class="button button-outline admin-manage-button" type="button"
             data-terminal-edit
@@ -349,7 +348,7 @@ page_start('Terminals and routes', 'admin-routes');
             aria-label="Edit <?= h((string) $terminal['terminal_name']) ?>">Edit</button></td>
         </tr>
       <?php endforeach; ?>
-      <?php if ($terminals === []): ?><tr><td colspan="5">No terminals configured.</td></tr><?php endif; ?>
+      <?php if ($terminals === []): ?><tr><td colspan="4">No terminals configured.</td></tr><?php endif; ?>
     </tbody></table></div>
   </section>
   <dialog class="admin-manage-dialog terminal-edit-dialog" id="terminal-edit-dialog" aria-labelledby="terminal-edit-title">
