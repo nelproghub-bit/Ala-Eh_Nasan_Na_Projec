@@ -3056,6 +3056,71 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+.admin-dashboard .admin-overview-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.admin-dashboard .admin-application-stats {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.admin-dashboard .admin-stat {
+  min-width: 0;
+  min-height: 154px;
+  justify-content: flex-start;
+  gap: 20px;
+}
+
+.admin-dashboard .admin-stat-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-dashboard .admin-stat-icon {
+  flex: 0 0 48px;
+  margin: 0;
+}
+
+.admin-dashboard .admin-stat-label {
+  min-width: 0;
+  margin: 0;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.admin-dashboard .admin-stat strong {
+  margin-top: auto;
+}
+
+@media (max-width: 1050px) {
+  .admin-dashboard .admin-application-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard .admin-overview-stats,
+  .admin-dashboard .admin-application-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-dashboard .admin-stat {
+    min-height: 142px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-dashboard .admin-overview-stats,
+  .admin-dashboard .admin-application-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
 .driver-accounts-table {
   min-width: 0;
   table-layout: fixed;

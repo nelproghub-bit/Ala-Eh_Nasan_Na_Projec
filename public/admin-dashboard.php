@@ -195,21 +195,21 @@ page_start('Admin dashboard', 'admin-dashboard');
     <span class="admin-access-badge"><span aria-hidden="true">✓</span> Admin access</span>
   </div>
 
-  <div class="admin-stats" aria-label="Transport operations overview">
+  <div class="admin-stats admin-overview-stats" aria-label="Transport operations overview">
     <a class="admin-stat" href="admin-jeepneys.php">
-      <span class="admin-stat-icon">🚌</span><span class="admin-stat-label">Registered jeepneys</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">🚌</span><span class="admin-stat-label">Registered jeepneys</span></span>
       <strong><?= h((string) $overview['vehicles']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-verified" href="admin-drivers.php">
-      <span class="admin-stat-icon">👤</span><span class="admin-stat-label">Active drivers</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">👤</span><span class="admin-stat-label">Active drivers</span></span>
       <strong><?= h((string) $overview['drivers']) ?></strong>
     </a>
     <a class="admin-stat" href="admin-routes.php">
-      <span class="admin-stat-icon">📍</span><span class="admin-stat-label">Available terminals</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">📍</span><span class="admin-stat-label">Available terminals</span></span>
       <strong><?= h((string) $overview['terminals']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-pending" href="admin-trips.php">
-      <span class="admin-stat-icon">🗺️</span><span class="admin-stat-label">Ongoing trips</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">🗺️</span><span class="admin-stat-label">Ongoing trips</span></span>
       <strong><?= h((string) $overview['trips']) ?></strong>
     </a>
   </div>
@@ -240,25 +240,25 @@ page_start('Admin dashboard', 'admin-dashboard');
     <?php endif; ?>
   </section>
 
-  <div class="admin-stats" aria-label="Application statistics">
+  <div class="admin-stats admin-application-stats" aria-label="Application statistics">
     <a class="admin-stat" href="admin-dashboard.php?status=all">
-      <span class="admin-stat-icon">◎</span><span class="admin-stat-label">Total applications</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">◎</span><span class="admin-stat-label">Total applications</span></span>
       <strong><?= h((string) $counts['total']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-pending" href="admin-dashboard.php?status=pending_verification">
-      <span class="admin-stat-icon">◷</span><span class="admin-stat-label">Awaiting review</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">◷</span><span class="admin-stat-label">Awaiting review</span></span>
       <strong><?= h((string) $counts['pending']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-verified" href="admin-dashboard.php?status=verified">
-      <span class="admin-stat-icon">✓</span><span class="admin-stat-label">Approved</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">✓</span><span class="admin-stat-label">Approved</span></span>
       <strong><?= h((string) $counts['verified']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-rejected" href="admin-dashboard.php?status=rejected">
-      <span class="admin-stat-icon">×</span><span class="admin-stat-label">Rejected</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">×</span><span class="admin-stat-label">Rejected</span></span>
       <strong><?= h((string) $counts['rejected']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-pending" href="#vehicle-review">
-      <span class="admin-stat-icon">▰</span><span class="admin-stat-label">Vehicle reviews</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">▰</span><span class="admin-stat-label">Vehicle reviews</span></span>
       <strong><?= h((string) $pendingVehicleCount) ?></strong>
     </a>
   </div>
