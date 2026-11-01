@@ -921,10 +921,10 @@ h1, h2, h3, h4, h5, h6 {
   align-items: flex-start; 
   justify-content: space-between; 
   gap: 24px; 
-  margin-bottom: 24px;
-  padding: 32px;
+  margin-bottom: 22px;
+  padding: 24px 28px;
   background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%);
-  border-radius: var(--radius-2xl);
+  border-radius: 20px;
   color: #fff;
   box-shadow: var(--shadow-lg);
 }
@@ -942,10 +942,10 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 4px rgb(147 197 253 / 16%);
 }
 
-.admin-page-heading h1 { 
-  margin: 18px 0 8px; 
-  color: #fff; 
-  font-size: clamp(32px, 4vw, 42px); 
+.admin-page-heading h1 {
+  margin: 10px 0 6px;
+  color: #fff;
+  font-size: clamp(30px, 3.2vw, 36px);
   font-weight: 800; 
   letter-spacing: -0.04em; 
 }
@@ -961,8 +961,9 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex; 
   align-items: center; 
   gap: 8px; 
-  margin-bottom: 6px; 
-  padding: 10px 16px; 
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 9px 14px;
   border: 1px solid rgb(255 255 255 / 20%); 
   border-radius: var(--radius-xl); 
   color: #fff; 
@@ -2634,11 +2635,14 @@ body.has-sidebar[class*="page-admin-"] .top-header {
 
   .admin-page-heading {
     flex-direction: column;
-    gap: 16px;
-    padding: 24px;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 16px;
   }
 
   .admin-access-badge {
+    align-self: flex-start;
     white-space: normal;
   }
 
@@ -2878,12 +2882,13 @@ body.has-sidebar[class*="page-admin-"] .top-header {
 
 @media (max-width: 650px) {
   .admin-page-heading {
-    padding: 22px 20px;
-    border-radius: var(--radius-xl);
+    gap: 10px;
+    padding: 18px;
   }
 
   .admin-page-heading h1 {
-    margin-top: 12px;
+    margin: 8px 0 5px;
+    font-size: clamp(27px, 8vw, 32px);
   }
 
   .admin-page-heading p {
