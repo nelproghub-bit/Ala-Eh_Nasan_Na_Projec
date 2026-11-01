@@ -2931,6 +2931,77 @@ body.has-sidebar[class*="page-admin-"] .top-header {
   padding: 24px 32px;
 }
 
+.report-preview-dialog {
+  width: min(1120px, calc(100vw - 32px));
+  max-width: 100%;
+  height: min(88vh, 900px);
+  max-height: 88vh;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.report-preview-dialog[open] {
+  display: flex;
+}
+
+.report-preview-dialog .admin-manage-dialog-header {
+  flex: 0 0 auto;
+  padding: 18px 24px;
+}
+
+.report-preview-dialog .admin-manage-dialog-header h2 {
+  margin: 8px 0 3px;
+  font-size: 20px;
+}
+
+.report-preview-dialog .admin-manage-dialog-header p {
+  margin: 0;
+}
+
+.report-preview-frame-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 180px;
+  background: #e9eef5;
+}
+
+.report-preview-frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  background: #fff;
+}
+
+.report-preview-frame-wrap iframe[hidden] {
+  display: none;
+}
+
+.report-preview-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.report-preview-loading[hidden] {
+  display: none;
+}
+
+.report-preview-actions {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
 .document-list {
   display: grid;
   gap: 12px;
@@ -2998,6 +3069,20 @@ body.has-sidebar[class*="page-admin-"] .top-header {
   .report-export-links,
   .document-list {
     padding: 20px;
+  }
+
+  .report-preview-dialog {
+    width: calc(100vw - 20px);
+    height: 90vh;
+    max-height: 90vh;
+  }
+
+  .report-preview-dialog .admin-manage-dialog-header {
+    padding: 16px;
+  }
+
+  .report-preview-actions {
+    padding: 12px;
   }
 
   .admin-security-list div {
@@ -3407,6 +3492,15 @@ html.dark-mode .document-list li {
   color: var(--ink);
   background: #0d0d0d;
   border-color: var(--line);
+}
+
+html.dark-mode .report-preview-actions {
+  border-color: var(--line);
+  background: #080808;
+}
+
+html.dark-mode .report-preview-frame-wrap {
+  background: #181818;
 }
 
 html.dark-mode .admin-table td,

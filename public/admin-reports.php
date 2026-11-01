@@ -54,6 +54,83 @@ if (in_array($export, ['trips', 'vehicles', 'drivers'], true)) {
         );
         $headers = ['Driver ID', 'Full name', 'Phone', 'License number', 'Verification', 'Account status', 'Registered'];
     }
+    $rows = $exportQuery->fetchAll(PDO::FETCH_NUM);
+    $format = $_GET['format'] ?? 'csv';
+    if ($format === 'pdf') {
+        $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+        if (!is_file($autoload)) {
+            throw new RuntimeException('PDF reports require installed Composer dependencies. Run composer install.');
+        }
+        require_once $autoload;
+
+        $reportTitles = [
+            'trips' => 'Trip Report',
+            'vehicles' => 'Jeepney Report',
+            'drivers' => 'Driver Report',
+        ];
+        $title = $reportTitles[$export];
+        $tableHeaders = implode('', array_map(
+            static fn (string $header): string => '<th>' . h($header) . '</th>',
+            $headers
+        ));
+        $tableRows = '';
+        foreach ($rows as $row) {
+            $tableRows .= '<tr>' . implode('', array_map(
+                static fn (mixed $value): string => '<td>' . h((string) ($value ?? '—')) . '</td>',
+                $row
+            )) . '</tr>';
+        }
+        if ($tableRows === '') {
+            $tableRows = '<tr><td class="empty" colspan="' . count($headers) . '">No records found for this report.</td></tr>';
+        }
+        $period = $export === 'trips'
+            ? '<p class="period">Trip start date: ' . h($from) . ' through ' . h($to) . ' (inclusive)</p>'
+            : '';
+        $html = '<!doctype html><html lang="en"><head><meta charset="UTF-8"><style>
+            @page { margin: 34px 30px; }
+            body { color: #172033; font-family: "DejaVu Sans", sans-serif; font-size: 9px; }
+            .brand { color: #2563eb; font-size: 9px; font-weight: bold; letter-spacing: 1.4px; text-transform: uppercase; }
+            h1 { margin: 8px 0 4px; color: #102a56; font-size: 22px; }
+            .meta, .period { margin: 0 0 5px; color: #64748b; font-size: 9px; }
+            .period { margin-bottom: 15px; }
+            table { width: 100%; border-collapse: collapse; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+            th { padding: 8px 6px; border: 1px solid #dbe3ee; color: #fff; background: #173b70; text-align: left; font-size: 8px; }
+            td { padding: 7px 6px; border: 1px solid #dbe3ee; vertical-align: top; word-wrap: break-word; }
+            tr:nth-child(even) td { background: #f3f6fa; }
+            .empty { padding: 18px; color: #64748b; text-align: center; }
+            .footer { margin-top: 12px; color: #64748b; font-size: 8px; }
+        </style></head><body>
+            <div class="brand">Ala-Eh Nasaan Na? · Administration</div>
+            <h1>' . h($title) . '</h1>
+            <p class="meta">Generated ' . h(date('F j, Y g:i A')) . ' · ' . count($rows) . ' record' . (count($rows) === 1 ? '' : 's') . '</p>
+            ' . $period . '
+            <table><thead><tr>' . $tableHeaders . '</tr></thead><tbody>' . $tableRows . '</tbody></table>
+            <p class="footer">Confidential administrative report. Handle and share responsibly.</p>
+        </body></html>';
+
+        $pdf = new \Dompdf\Dompdf([
+            'isRemoteEnabled' => false,
+            'isPhpEnabled' => false,
+            'isJavascriptEnabled' => false,
+        ]);
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->loadHtml($html, 'UTF-8');
+        $pdf->render();
+        $filename = 'ala-eh-' . $export . '-report.pdf';
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="' . $filename . '"');
+        header('Cache-Control: private, no-store, max-age=0');
+        header('X-Content-Type-Options: nosniff');
+        echo $pdf->output();
+        exit;
+    }
+
+    if ($format !== 'csv') {
+        http_response_code(400);
+        exit('Unsupported report format.');
+    }
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="ala-eh-' . $export . '-report.csv"');
     header('Cache-Control: no-store');
@@ -63,7 +140,7 @@ if (in_array($export, ['trips', 'vehicles', 'drivers'], true)) {
         throw new RuntimeException('Could not generate the requested report.');
     }
     fputcsv($output, $headers);
-    foreach ($exportQuery->fetchAll(PDO::FETCH_NUM) as $row) {
+    foreach ($rows as $row) {
         $safeRow = array_map(
             static function (mixed $value): string {
                 $cell = (string) ($value ?? '');
@@ -155,13 +232,100 @@ page_start('Reports and analytics', 'admin-reports');
     </div>
   </section>
   <section class="admin-queue">
-    <div class="admin-queue-heading"><div><h2>Export reports</h2><p>CSV exports are generated on demand and protected by administrator authentication.</p></div></div>
+    <div class="admin-queue-heading"><div><h2>Export reports</h2><p>Preview a professionally formatted PDF, then download it or export the same records as CSV.</p></div></div>
     <div class="report-export-links">
-      <a class="button button-outline" href="admin-reports.php?from=<?= h($from) ?>&amp;to=<?= h($to) ?>&amp;export=trips">Download trip report</a>
-      <a class="button button-outline" href="admin-reports.php?export=vehicles">Download jeepney report</a>
-      <a class="button button-outline" href="admin-reports.php?export=drivers">Download driver report</a>
+      <button class="button button-outline" type="button" data-report-export="trips" data-report-title="Trip report" data-report-query="&amp;from=<?= h($from) ?>&amp;to=<?= h($to) ?>">Preview trip report</button>
+      <button class="button button-outline" type="button" data-report-export="vehicles" data-report-title="Jeepney report">Preview jeepney report</button>
+      <button class="button button-outline" type="button" data-report-export="drivers" data-report-title="Driver report">Preview driver report</button>
     </div>
   </section>
+  <dialog class="admin-manage-dialog report-preview-dialog" id="report-preview-dialog" aria-labelledby="report-preview-title">
+    <div class="admin-manage-dialog-header">
+      <div>
+        <span class="eyebrow"><span class="eyebrow-dot"></span> REPORT PREVIEW</span>
+        <h2 id="report-preview-title">PDF report</h2>
+        <p id="report-preview-status" role="status" aria-live="polite">Preparing your report…</p>
+      </div>
+      <button class="admin-manage-dialog-close" type="button" data-report-close aria-label="Close report preview">×</button>
+    </div>
+    <div class="report-preview-frame-wrap">
+      <iframe id="report-preview-frame" title="PDF report preview" hidden></iframe>
+      <div class="report-preview-loading" id="report-preview-loading">Generating a secure PDF preview…</div>
+    </div>
+    <div class="report-preview-actions">
+      <a class="button button-outline" id="report-csv-download" href="#">Download CSV</a>
+      <a class="button button-primary" id="report-pdf-download" href="#" download>Download PDF</a>
+    </div>
+  </dialog>
+  <script>
+  (() => {
+    const dialog = document.getElementById('report-preview-dialog');
+    const title = document.getElementById('report-preview-title');
+    const status = document.getElementById('report-preview-status');
+    const frame = document.getElementById('report-preview-frame');
+    const loading = document.getElementById('report-preview-loading');
+    const pdfDownload = document.getElementById('report-pdf-download');
+    const csvDownload = document.getElementById('report-csv-download');
+    let previewUrl = null;
+    let request = null;
+
+    const clearPreview = () => {
+      request?.abort();
+      request = null;
+      frame.removeAttribute('src');
+      frame.hidden = true;
+      loading.hidden = false;
+      loading.textContent = 'Generating a secure PDF preview…';
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
+      }
+      pdfDownload.removeAttribute('href');
+      csvDownload.removeAttribute('href');
+    };
+
+    document.querySelectorAll('[data-report-export]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        clearPreview();
+        title.textContent = button.dataset.reportTitle || 'PDF report';
+        status.textContent = 'Preparing your report…';
+        dialog.showModal();
+        request = new AbortController();
+        const query = button.dataset.reportQuery || '';
+        const baseUrl = `admin-reports.php?export=${encodeURIComponent(button.dataset.reportExport)}${query.replaceAll('&amp;', '&')}`;
+        csvDownload.href = `${baseUrl}&format=csv`;
+
+        try {
+          const response = await fetch(`${baseUrl}&format=pdf`, {
+            headers: {'Accept': 'application/pdf'},
+            cache: 'no-store',
+            signal: request.signal
+          });
+          if (!response.ok || !response.headers.get('content-type')?.includes('application/pdf')) {
+            throw new Error('The PDF could not be generated. Try again or download the CSV report.');
+          }
+          const pdf = await response.blob();
+          previewUrl = URL.createObjectURL(pdf);
+          frame.src = previewUrl;
+          frame.hidden = false;
+          loading.hidden = true;
+          pdfDownload.href = previewUrl;
+          pdfDownload.download = `ala-eh-${button.dataset.reportExport}-report.pdf`;
+          status.textContent = 'Preview ready. Download the PDF or export the data as CSV.';
+        } catch (error) {
+          if (error.name !== 'AbortError') {
+            status.textContent = error instanceof Error ? error.message : 'The report preview is unavailable.';
+            loading.textContent = status.textContent;
+          }
+        }
+      });
+    });
+
+    document.querySelector('[data-report-close]').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('cancel', () => request?.abort());
+    dialog.addEventListener('close', clearPreview);
+  })();
+  </script>
   <section class="admin-queue">
     <div class="admin-queue-heading"><div><h2>Daily trip activity</h2><p>Counts include only trips started in the selected period.</p></div></div>
     <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Date</th><th>Total</th><th>Completed</th><th>Cancelled</th></tr></thead><tbody>
