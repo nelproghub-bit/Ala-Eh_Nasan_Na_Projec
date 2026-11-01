@@ -211,7 +211,7 @@ page_start('Driver management', 'admin-drivers');
       </nav>
     </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
+      <table class="admin-table driver-accounts-table">
         <thead><tr><th>Driver</th><th>License</th><th>Application</th><th>Account access</th><th>Documents</th><th>Manage</th></tr></thead>
         <tbody>
         <?php foreach ($drivers as $driver): ?>
