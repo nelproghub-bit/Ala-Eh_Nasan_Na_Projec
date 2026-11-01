@@ -17,44 +17,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(400);
             exit('Invalid terminal record.');
         }
-        $name = trim((string) ($_POST['terminal_name'] ?? ''));
-        $municipality = trim((string) ($_POST['municipality'] ?? ''));
-        $latitudeRaw = trim((string) ($_POST['latitude'] ?? ''));
-        $longitudeRaw = trim((string) ($_POST['longitude'] ?? ''));
-        $latitude = $latitudeRaw === '' ? null : validated_coordinate($latitudeRaw, -90, 90);
-        $longitude = $longitudeRaw === '' ? null : validated_coordinate($longitudeRaw, -180, 180);
+        $location = trim((string) ($_POST['terminal_name'] ?? ''));
+        $area = trim((string) ($_POST['municipality'] ?? ''));
+        $landmark = trim((string) ($_POST['landmark'] ?? ''));
         $isActive = $activeInput === '1' ? 1 : 0;
         if (
-            $name === '' || mb_strlen($name) > 120 || $municipality === '' || mb_strlen($municipality) > 100 ||
-            (($latitudeRaw !== '' || $longitudeRaw !== '') && ($latitude === null || $longitude === null))
+            $location === '' || mb_strlen($location) > 120 ||
+            $area === '' || mb_strlen($area) > 100 ||
+            $landmark === '' || mb_strlen($landmark) > 255
         ) {
-            $_SESSION['admin_flash'] = 'Enter a terminal name and municipality; coordinates must both be valid or both blank.';
-            redirect('admin-routes.php');
+            $_SESSION['admin_flash'] = 'Enter a location, area, and landmark for the terminal.';
+            redirect('admin-routes.php#terminals');
         }
         $pdo->beginTransaction();
         try {
             if ($terminalId === null) {
                 $save = $pdo->prepare(
-                    'INSERT INTO terminals (terminal_name, municipality, latitude, longitude, is_active)
-                     VALUES (:name, :municipality, :latitude, :longitude, :active)'
+                    'INSERT INTO terminals (terminal_name, municipality, is_active)
+                     VALUES (:location, :area, :active)'
                 );
                 $save->execute([
-                    'name' => $name, 'municipality' => $municipality,
-                    'latitude' => $latitude, 'longitude' => $longitude, 'active' => $isActive,
+                    'location' => $location, 'area' => $area, 'active' => $isActive,
                 ]);
                 $terminalId = (int) $pdo->lastInsertId();
             } else {
                 $save = $pdo->prepare(
-                    'UPDATE terminals SET terminal_name = :name, municipality = :municipality,
-                         latitude = :latitude, longitude = :longitude, is_active = :active
+                    'UPDATE terminals SET terminal_name = :location, municipality = :area,
+                         is_active = :active
                      WHERE id = :id'
                 );
                 $save->execute([
-                    'name' => $name, 'municipality' => $municipality,
-                    'latitude' => $latitude, 'longitude' => $longitude,
+                    'location' => $location, 'area' => $area,
                     'active' => $isActive, 'id' => $terminalId,
                 ]);
             }
+            $saveLandmark = $pdo->prepare(
+                'INSERT INTO terminal_details (terminal_id, landmark)
+                 VALUES (:terminal_id, :landmark)
+                 ON DUPLICATE KEY UPDATE landmark = VALUES(landmark)'
+            );
+            $saveLandmark->execute(['terminal_id' => $terminalId, 'landmark' => $landmark]);
             if ($isActive === 0) {
                 $pdo->prepare(
                     'UPDATE routes r
@@ -69,14 +71,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      WHERE rt.terminal_id = :terminal_id AND t.trip_status = 'active'"
                 )->execute(['terminal_id' => $terminalId]);
             }
-            record_admin_activity($pdo, $admin, 'terminal_saved', 'terminal', $terminalId, $name . ', ' . $municipality);
+            record_admin_activity($pdo, $admin, 'terminal_saved', 'terminal', $terminalId, $location . ', ' . $area);
             $pdo->commit();
         } catch (Throwable $exception) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
             if ($exception instanceof PDOException && $exception->getCode() === '23000') {
-                $_SESSION['admin_flash'] = 'A terminal with that name is already registered for this municipality.';
+                $_SESSION['admin_flash'] = 'A terminal with that location is already registered for this area.';
                 redirect('admin-routes.php#terminals');
             }
             throw $exception;
@@ -285,7 +287,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit('Invalid route management action.');
 }
 
-$terminals = $pdo->query('SELECT * FROM terminals ORDER BY municipality, terminal_name')->fetchAll();
+$terminals = $pdo->query(
+    'SELECT t.*, td.landmark
+     FROM terminals t
+     LEFT JOIN terminal_details td ON td.terminal_id = t.id
+     ORDER BY t.municipality, t.terminal_name'
+)->fetchAll();
 $activeTerminals = array_values(array_filter($terminals, static fn (array $terminal): bool => (int) $terminal['is_active'] === 1));
 $routes = $pdo->query(
     'SELECT r.id, r.route_name, r.is_active,
@@ -315,35 +322,34 @@ unset($_SESSION['admin_flash']);
 page_start('Terminals and routes', 'admin-routes');
 ?>
 <section class="admin-dashboard">
-  <div class="admin-page-heading"><div><span class="eyebrow"><span class="eyebrow-dot"></span> NETWORK CONFIGURATION</span><h1>Terminals & routes</h1><p>Configure real terminal coordinates and authorized route endpoints. Confirm coordinates with local transport authorities before publishing them.</p></div><span class="admin-access-badge"><span aria-hidden="true">📍</span> Admin-managed data</span></div>
+  <div class="admin-page-heading"><div><span class="eyebrow"><span class="eyebrow-dot"></span> NETWORK CONFIGURATION</span><h1>Terminals & routes</h1><p>Manage terminal areas, locations, landmarks, and authorized route endpoints.</p></div><span class="admin-access-badge"><span aria-hidden="true">📍</span> Admin-managed data</span></div>
   <?php if ($flash !== ''): ?><p class="message message-success admin-flash" role="status"><?= h($flash) ?></p><?php endif; ?>
   <section class="admin-queue" id="terminals">
     <div class="admin-queue-heading"><div><h2>Terminals</h2><p>Support Batangas City, Mabini, and any approved intermediate terminal.</p></div></div>
     <form method="post" class="admin-form-grid" action="admin-routes.php#terminals">
       <?= csrf_field() ?><input type="hidden" name="action" value="save_terminal">
-      <label>Terminal name<input name="terminal_name" maxlength="120" required></label>
-      <label>Municipality / city<input name="municipality" maxlength="100" required placeholder="Batangas City or Mabini"></label>
-      <label>Latitude<input name="latitude" type="number" step="any" min="-90" max="90" placeholder="Optional decimal degrees"></label>
-      <label>Longitude<input name="longitude" type="number" step="any" min="-180" max="180" placeholder="Optional decimal degrees"></label>
+      <label>Area<input name="municipality" maxlength="100" required placeholder="Batangas City or Mabini"></label>
+      <label>Location<input name="terminal_name" maxlength="120" required placeholder="Terminal or place name"></label>
+      <label>Landmark<input name="landmark" maxlength="255" required placeholder="Nearby landmark"></label>
       <button class="button button-primary" type="submit">Add terminal</button>
     </form>
-    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Terminal</th><th>Coordinates</th><th>Status</th><th>Edit</th></tr></thead><tbody>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Area / location</th><th>Landmark</th><th>Coordinates</th><th>Status</th><th>Edit</th></tr></thead><tbody>
       <?php foreach ($terminals as $terminal): ?>
-        <tr><td data-label="Terminal"><strong><?= h((string) $terminal['terminal_name']) ?></strong><small><?= h((string) $terminal['municipality']) ?></small></td>
+        <tr><td data-label="Area / location"><strong><?= h((string) $terminal['municipality']) ?></strong><small><?= h((string) $terminal['terminal_name']) ?></small></td>
+          <td data-label="Landmark"><?= h((string) ($terminal['landmark'] ?? 'Not set')) ?></td>
           <td data-label="Coordinates"><?= $terminal['latitude'] === null ? 'Not set' : h((string) $terminal['latitude'] . ', ' . (string) $terminal['longitude']) ?></td>
           <td data-label="Status"><?= (int) $terminal['is_active'] === 1 ? 'Active' : 'Inactive' ?></td>
           <td data-label="Edit"><details><summary>Edit terminal</summary><form method="post" class="admin-form-grid" action="admin-routes.php#terminals">
             <?= csrf_field() ?><input type="hidden" name="action" value="save_terminal"><input type="hidden" name="terminal_id" value="<?= h((string) $terminal['id']) ?>">
-            <label>Name<input name="terminal_name" maxlength="120" required value="<?= h((string) $terminal['terminal_name']) ?>"></label>
-            <label>Municipality<input name="municipality" maxlength="100" required value="<?= h((string) $terminal['municipality']) ?>"></label>
-            <label>Latitude<input name="latitude" type="number" step="any" min="-90" max="90" value="<?= h((string) ($terminal['latitude'] ?? '')) ?>"></label>
-            <label>Longitude<input name="longitude" type="number" step="any" min="-180" max="180" value="<?= h((string) ($terminal['longitude'] ?? '')) ?>"></label>
+            <label>Area<input name="municipality" maxlength="100" required value="<?= h((string) $terminal['municipality']) ?>"></label>
+            <label>Location<input name="terminal_name" maxlength="120" required value="<?= h((string) $terminal['terminal_name']) ?>"></label>
+            <label>Landmark<input name="landmark" maxlength="255" required value="<?= h((string) ($terminal['landmark'] ?? '')) ?>" placeholder="Nearby landmark"></label>
             <label>Status<select name="is_active"><option value="1" <?= (int) $terminal['is_active'] === 1 ? 'selected' : '' ?>>Active</option><option value="0" <?= (int) $terminal['is_active'] === 0 ? 'selected' : '' ?>>Inactive</option></select></label>
             <button class="button button-primary" type="submit">Save terminal</button>
           </form></details></td>
         </tr>
       <?php endforeach; ?>
-      <?php if ($terminals === []): ?><tr><td colspan="4">No terminals configured.</td></tr><?php endif; ?>
+      <?php if ($terminals === []): ?><tr><td colspan="5">No terminals configured.</td></tr><?php endif; ?>
     </tbody></table></div>
   </section>
 

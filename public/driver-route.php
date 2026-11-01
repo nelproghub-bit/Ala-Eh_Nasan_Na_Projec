@@ -46,9 +46,10 @@ if ($driverStatus === 'verified') {
     if ($route !== null && $stops === []) {
         $terminalQuery = db()->prepare(
             'SELECT t.terminal_name AS location_name, t.municipality AS area_label,
-                    t.terminal_name AS landmark, rt.stop_order
+                    COALESCE(td.landmark, t.terminal_name) AS landmark, rt.stop_order
              FROM route_terminals rt
              INNER JOIN terminals t ON t.id = rt.terminal_id
+             LEFT JOIN terminal_details td ON td.terminal_id = t.id
              WHERE rt.route_id = :route_id
              ORDER BY rt.stop_order'
         );
