@@ -79,9 +79,24 @@ page_start('Admin sign in', 'admin-login');
       <button class="button button-primary button-submit" type="submit">Sign in to admin <span aria-hidden="true">→</span></button>
     </form>
     <div class="form-security"><span aria-hidden="true">◈</span> Admin accounts are separate from driver accounts and use role-based access.</div>
-    <?php if (first_admin_registration_available()): ?>
-    <p class="form-switch">Setting up the portal? <a href="admin-register.php">Create the first admin account</a></p>
-    <?php endif; ?>
+    <p class="form-switch">Setting up the portal? <a href="admin-register.php" data-admin-registration="<?= first_admin_registration_available() ? 'available' : 'closed' ?>">Create the first admin account</a></p>
   </div>
 </section>
+<script>
+(() => {
+  const message = 'Only one first admin account can be created. The initial admin account has already been set up.';
+  const registrationLink = document.querySelector('[data-admin-registration="closed"]');
+
+  if (registrationLink) {
+    registrationLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      window.showToast(message, 'warning');
+    });
+  }
+
+  if (new URLSearchParams(window.location.search).get('registration') === 'closed') {
+    window.showToast(message, 'warning');
+  }
+})();
+</script>
 <?php page_end(); ?>
