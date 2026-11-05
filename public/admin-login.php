@@ -75,7 +75,7 @@ page_start('Admin sign in', 'admin-login');
     <form class="form-stack" method="post" action="admin-login.php" autocomplete="on">
       <?= csrf_field() ?>
       <label>Email address <input type="email" name="email" required autocomplete="username" placeholder="admin@example.com" value="<?= h((string) ($_POST['email'] ?? '')) ?>"></label>
-      <label>Password <input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"></label>
+      <label>Password <span class="password-field"><input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"><button class="password-visibility-toggle" type="button" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg><svg viewBox="0 0 24 24" aria-hidden="true" hidden><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"></path><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a15.7 15.7 0 0 1-3.2 4.1M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.7 10.7 0 0 0 4.1-.8"></path></svg></button></span></label>
       <button class="button button-primary button-submit" type="submit">Sign in to admin <span aria-hidden="true">→</span></button>
     </form>
     <div class="form-security"><span aria-hidden="true">◈</span> Admin accounts are separate from driver accounts and use role-based access.</div>

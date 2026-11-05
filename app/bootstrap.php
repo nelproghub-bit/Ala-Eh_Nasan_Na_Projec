@@ -188,6 +188,7 @@ function page_start(string $title, string $page = ''): void
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/password-toggle.js" defer></script>
   <script>
     try {
       if (localStorage.getItem('alaEhTheme') === 'dark') {

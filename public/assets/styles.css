@@ -549,6 +549,48 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--blue-600); 
   box-shadow: 0 0 0 3px rgb(37 99 235 / 10%), 0 1px 3px rgb(15 23 42 / 8%); 
 }
+.form-stack .password-field {
+  position: relative;
+  display: block;
+}
+.form-stack .password-field input {
+  padding-right: 48px;
+}
+.password-visibility-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  transform: translateY(-50%);
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--muted-lighter);
+  background: transparent;
+  cursor: pointer;
+}
+.password-visibility-toggle:hover {
+  color: var(--blue-600);
+}
+.password-visibility-toggle:focus-visible {
+  outline: 2px solid rgb(37 99 235 / 40%);
+  outline-offset: 1px;
+}
+.password-visibility-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+.password-visibility-toggle[hidden] {
+  display: none;
+}
 .form-switch { 
   margin: 24px 0 0; 
   color: var(--muted); 
