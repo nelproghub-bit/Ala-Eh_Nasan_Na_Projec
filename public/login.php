@@ -23,13 +23,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Too many login attempts. Please wait 15 minutes before trying again.';
         } else {
             $query = $pdo->prepare(
-                'SELECT id, full_name, email, password_hash, verification_status
-                 FROM drivers WHERE email = :email LIMIT 1'
+                "SELECT d.id, d.full_name, d.email, d.password_hash, d.verification_status,
+                        COALESCE(s.account_status, 'active') AS account_status
+                 FROM drivers d
+                 LEFT JOIN driver_admin_status s ON s.driver_id = d.id
+                 WHERE d.email = :email LIMIT 1"
             );
             $query->execute(['email' => $email]);
             $driver = $query->fetch();
 
-            if ($driver !== false && password_verify($password, $driver['password_hash'])) {
+            if (
+                $driver !== false &&
+                $driver['account_status'] === 'active' &&
+                password_verify($password, $driver['password_hash'])
+            ) {
                 if (password_needs_rehash($driver['password_hash'], PASSWORD_DEFAULT)) {
                     $rehash = $pdo->prepare('UPDATE drivers SET password_hash = :hash WHERE id = :id');
                     $rehash->execute([
@@ -75,7 +82,7 @@ page_start('Driver login', 'login');
     <form class="form-stack" method="post" action="login.php" autocomplete="on">
       <?= csrf_field() ?>
       <label>Email address <input type="email" name="email" required autocomplete="username" placeholder="you@example.com" value="<?= h((string) ($_POST['email'] ?? '')) ?>"></label>
-      <label>Password <input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"></label>
+      <label>Password <span class="password-field"><input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"><button class="password-visibility-toggle" type="button" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle><path data-eye-slash d="m4 4 16 16"></path></svg></button></span></label>
       <button class="button button-primary button-submit" type="submit">Sign in <span aria-hidden="true">→</span></button>
     </form>
     <p class="form-switch">New to the portal? <a href="register.php">Create an account</a></p>

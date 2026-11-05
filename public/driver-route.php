@@ -43,6 +43,30 @@ if ($driverStatus === 'verified') {
         }
     }
 
+    if ($route !== null && $stops === []) {
+        $terminalQuery = db()->prepare(
+            'SELECT t.terminal_name AS location_name, t.municipality AS area_label,
+                    COALESCE(td.landmark, t.terminal_name) AS landmark, rt.stop_order
+             FROM route_terminals rt
+             INNER JOIN terminals t ON t.id = rt.terminal_id
+             LEFT JOIN terminal_details td ON td.terminal_id = t.id
+             WHERE rt.route_id = :route_id
+             ORDER BY rt.stop_order'
+        );
+        $terminalQuery->execute(['route_id' => $route['id']]);
+        $routeTerminals = $terminalQuery->fetchAll();
+        foreach ($routeTerminals as $index => $terminal) {
+            $stops[] = [
+                'stop_sequence' => $terminal['stop_order'],
+                'location_name' => $terminal['location_name'],
+                'area_label' => $terminal['area_label'],
+                'landmark' => $terminal['landmark'],
+                'stop_type' => $index === 0 ? 'terminal' : ($index === count($routeTerminals) - 1 ? 'destination' : 'terminal'),
+                'implementation_note' => null,
+            ];
+        }
+    }
+
     if ($route === null) {
         $assignment = db()->prepare(
             "SELECT route_assignment

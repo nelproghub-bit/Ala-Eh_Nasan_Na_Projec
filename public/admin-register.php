@@ -41,16 +41,16 @@ page_start('Create first admin account', 'admin-register');
 <section class="auth-layout">
   <div class="auth-aside admin-auth-aside">
     <span class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> ONE-TIME SETUP</span>
-    <h1>Set up your<br><span>admin account.</span></h1>
-    <p>Create the portal’s administrator account to start reviewing driver applications.</p>
-    <div class="aside-note"><span class="aside-note-icon" aria-hidden="true">✓</span><span><strong>One administrator account</strong><small>Registration closes after this account is created.</small></span></div>
+    <h1>Set up your<br><span>owner account.</span></h1>
+    <p>Create the first owner account to manage transport operations and administrator access.</p>
+    <div class="aside-note"><span class="aside-note-icon" aria-hidden="true">✓</span><span><strong>One-time owner registration</strong><small>The owner can add admins and read-only viewers.</small></span></div>
     <div class="aside-decoration" aria-hidden="true">A</div>
   </div>
   <div class="auth-panel">
     <div class="form-heading">
       <span class="form-kicker">FIRST-TIME SETUP</span>
-      <h2>Create the admin account</h2>
-      <p>This registration is available only once.</p>
+      <h2>Create the owner account</h2>
+      <p>This initial setup is available only once.</p>
     </div>
     <?php if ($error !== ''): ?><p class="message message-error" role="alert"><?= h($error) ?></p><?php endif; ?>
     <form class="form-stack" method="post" action="admin-register.php" autocomplete="on">
@@ -61,7 +61,7 @@ page_start('Create first admin account', 'admin-register');
       <button class="button button-primary button-submit" type="submit">Create admin account <span aria-hidden="true">→</span></button>
     </form>
     <p class="form-switch">Already set up? <a href="admin-login.php">Admin sign in</a></p>
-    <div class="form-security"><span aria-hidden="true">◈</span> Registration closes after the first account is created.</div>
+    <div class="form-security"><span aria-hidden="true">◈</span> The owner can create additional admins with restricted roles.</div>
   </div>
 </section>
 <?php page_end(); ?>

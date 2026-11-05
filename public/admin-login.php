@@ -22,7 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Too many sign-in attempts. Please wait 15 minutes before trying again.';
         } else {
             $query = $pdo->prepare(
-                'SELECT id, email, password_hash FROM admins WHERE email = :email LIMIT 1'
+                "SELECT a.id, a.email, a.password_hash, r.role
+                 FROM admins a
+                 INNER JOIN admin_roles r ON r.admin_id = a.id
+                 WHERE a.email = :email AND r.account_status = 'active'
+                 LIMIT 1"
             );
             $query->execute(['email' => $email]);
             $admin = $query->fetch();
@@ -41,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin'] = [
                     'id' => (int) $admin['id'],
                     'email' => $admin['email'],
+                    'role' => $admin['role'],
                 ];
                 redirect('admin-dashboard.php');
             }
@@ -70,13 +75,28 @@ page_start('Admin sign in', 'admin-login');
     <form class="form-stack" method="post" action="admin-login.php" autocomplete="on">
       <?= csrf_field() ?>
       <label>Email address <input type="email" name="email" required autocomplete="username" placeholder="admin@example.com" value="<?= h((string) ($_POST['email'] ?? '')) ?>"></label>
-      <label>Password <input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"></label>
+      <label>Password <span class="password-field"><input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"><button class="password-visibility-toggle" type="button" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle><path data-eye-slash d="m4 4 16 16"></path></svg></button></span></label>
       <button class="button button-primary button-submit" type="submit">Sign in to admin <span aria-hidden="true">→</span></button>
     </form>
-    <div class="form-security"><span aria-hidden="true">◈</span> Admin accounts are separate from driver accounts.</div>
-    <?php if (first_admin_registration_available()): ?>
-    <p class="form-switch">Setting up the portal? <a href="admin-register.php">Create the first admin account</a></p>
-    <?php endif; ?>
+    <div class="form-security"><span aria-hidden="true">◈</span> Admin accounts are separate from driver accounts and use role-based access.</div>
+    <p class="form-switch">Setting up the portal? <a href="admin-register.php" data-admin-registration="<?= first_admin_registration_available() ? 'available' : 'closed' ?>">Create the first admin account</a></p>
   </div>
 </section>
+<script>
+(() => {
+  const message = 'Only one first admin account can be created. The initial admin account has already been set up.';
+  const registrationLink = document.querySelector('[data-admin-registration="closed"]');
+
+  if (registrationLink) {
+    registrationLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      window.showToast(message, 'warning');
+    });
+  }
+
+  if (new URLSearchParams(window.location.search).get('registration') === 'closed') {
+    window.showToast(message, 'warning');
+  }
+})();
+</script>
 <?php page_end(); ?>

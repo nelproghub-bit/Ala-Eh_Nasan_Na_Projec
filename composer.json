@@ -1,0 +1,8 @@
+{
+  "name": "alaeh/jeepney-locator",
+  "description": "Ala-Eh Nasaan Na? jeepney locator and driver management application",
+  "license": "proprietary",
+  "require": {
+    "dompdf/dompdf": "^3.1"
+  }
+}

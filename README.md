@@ -26,15 +26,20 @@ This application features a professional design system with:
 
 ## Setup
 
-1. Create a MySQL user/database, then apply `database/schema.sql` (it creates `ala_eh`).
-2. Copy `.env.example` to `.env`, then set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`. The application loads `.env` for local development; process environment variables take precedence. For a default local XAMPP installation with an empty root password, use `DB_USER=root` and leave `DB_PASSWORD` blank. Only use the root account for local development; production must use a dedicated least-privilege MySQL account.
-3. Keep `SESSION_COOKIE_SECURE=true` and serve the app over HTTPS in production. For local HTTP-only development, set it to `false` locally, then restore `true` before deployment.
-4. Configure the web server document root to `public/`; do not expose the project root, `app/`, or `database/` as web content. The root `.htaccess` blocks direct HTTP access to `.env` when using Apache.
-5. Ensure PHP has `pdo_mysql` and `mbstring` enabled.
-6. Serve using your PHP web server, for example `php -S 127.0.0.1:8000 -t public` after configuring the environment.
-7. Apply `database/schema.sql`, then open `public/admin-login.php` and choose **Create the first admin account**. First-admin registration is closed automatically after one account has been created. Admin credentials are stored as password hashes and are separate from driver accounts. Alternatively, create the first admin from the project root with `php tools/create_admin.php admin@example.com`.
+Follow [the shared MySQL setup guide](docs/shared-database-setup.md) to configure the one shared managed database, each developer's private TLS-enabled connection, and safe schema changes. All collaborators use the same `DB_NAME`; only their individual least-privilege usernames/passwords differ. Application credentials are never committed.
 
-Open `public/admin-login.php` to sign in, then review pending applications in the admin dashboard. Approval and rejection actions require an authenticated admin session and CSRF token. The optional CLI setup command asks for the password twice; input may be visible in the terminal.
+1. Copy `.env.example` to `.env` and configure the connection and verified CA certificate for your environment. The application loads `.env` for local development; process environment variables take precedence.
+2. Keep `SESSION_COOKIE_SECURE=true` and serve the app over HTTPS in production. For local HTTP-only development, set it to `false` locally, then restore `true` before deployment.
+3. Configure the web server document root to `public/`; do not expose the project root, `app/`, or `database/` as web content. The root `.htaccess` blocks direct HTTP access to `.env` when using Apache.
+4. Ensure PHP has `pdo_mysql` and `mbstring` enabled.
+5. Run `composer install` from the project root to install the PHP PDF-report dependency.
+6. On a new, empty database, import `database/schema.sql` with `php tools/import_schema.php` using an authorized schema account, then apply approved migrations with `php tools/migrate.php`. The admin operations migration must be applied before opening the expanded admin portal.
+7. Open `public/admin-login.php` and choose **Create the first owner account**. First-owner registration closes automatically after the first account is created. The owner can create admins and read-only viewers from the portal. Admin credentials are hashed and separate from driver accounts.
+8. Use `php tools/check_database.php` to check local connectivity without exposing connection details.
+
+GitHub collaborators should be granted repository access through the repository's settings. Keep `.env`, database credentials, private keys, and downloaded CA files out of commits; review pull requests before merging schema or application changes. Normal pages retrieve shared records on request; the admin trip map polls active driver-consented locations.
+
+The admin portal includes operations overview, driver/document review, jeepney management, terminal and route configuration, trip monitoring, reports, user management, and owner-only system settings/activity logs. Admin report exports support a protected Dompdf-generated PDF preview/download and CSV download. Driver GPS sharing is opt-in per trip and requires browser geolocation permission. Planned map lines are separate from live GPS and are explicitly approximate; confirm each stop and the actual transit path locally before relying on them for navigation. The map uses the public OSRM demo routing service, which has no production availability guarantee. Commuter management currently stores contact records only and does not provide commuter sign-in.
 
 Drivers can manage one jeepney profile at `public/jeepney-profile.php`. The signed-in driver's session determines ownership; the API never accepts a driver ID to select whose vehicle is edited. `GET /api/vehicle.php` returns the signed-in driver's profile, and `PUT /api/vehicle.php` accepts JSON containing `plate_number`, `capacity`, and `route_assignment`, with the page's CSRF token in the `X-CSRF-Token` header. Philippine plate formats such as `ABC 1234` and `123 ABC` are accepted. Each submission is stored as pending changes; verified details remain unchanged until an administrator approves the update in the vehicle review queue.
 
@@ -51,7 +56,7 @@ The client supplied these six initial location candidates; they are documented h
 | Mabini — POV from Mabini | In front of 7/11 Mabini | Left side, F. Castillo Blvd | Preserve Mabini-side orientation |
 | Mabini — POV from Mabini | In front of Iconails Beauty Lounge | Mabini Circumferential Rd | Verify road side and exact map pin |
 
-Before inserting these candidates into `RouteStops`, confirm the exact route name used by the approved vehicle assignment, each travel direction and stop sequence, and which locations are formal terminals or destinations. This avoids presenting unverified roadside points as authoritative route guidance.
+Migration `database/migrations/0004_batangas_mabini_route_waypoints.sql` adds the six candidates above to the existing `Batangas` route only when that route exists and currently has no stops. It stores approximate OpenStreetMap-derived coordinates and notes that the points must be locally confirmed. Follow-up migration `0006_batangas_waypoints_generic_stops.sql` keeps all six as generic stops, not confirmed terminals. These migrations do not change the route's existing terminal assignments. The map requests road-following geometry from the public OSRM demo service; if routing is unavailable, the approximate stop pins remain visible where possible. The existing route should be reviewed to confirm its travel direction, stop order, and any formal terminal designations before using it as authoritative guidance. Apply pending migrations with the authorized CLI credentials using `php tools/migrate.php`.
 
 Seed template (replace the placeholders only after confirming the route details):
 

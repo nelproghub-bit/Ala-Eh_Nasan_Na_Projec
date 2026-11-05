@@ -4,6 +4,7 @@ require_once __DIR__ . '/../app/bootstrap.php';
 $admin = require_admin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $admin = require_admin_role(['owner', 'admin']);
     verify_csrf_token();
 
     $action = $_POST['action'] ?? '';
@@ -45,16 +46,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
         }
 
+        $pdo = db();
+        $pdo->beginTransaction();
         try {
             $update->execute(['id' => $recordId]);
+            if ($update->rowCount() === 1 && $newStatus === 'verified') {
+                $status = $pdo->prepare(
+                    "INSERT IGNORE INTO jeepney_admin_status (jeepney_profile_id, operational_status)
+                     VALUES (?, 'active')"
+                );
+                $status->execute([$recordId]);
+            }
             $_SESSION['admin_flash'] = $update->rowCount() === 1
                 ? 'Vehicle changes ' . ($newStatus === 'verified' ? 'approved' : 'rejected') . ' successfully.'
                 : 'These vehicle changes were already reviewed or could not be found.';
+            if ($update->rowCount() === 1) {
+                record_admin_activity($pdo, $admin, 'vehicle_' . $newStatus, 'jeepney_profile', $recordId);
+            }
+            $pdo->commit();
         } catch (PDOException $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             if ($exception->getCode() !== '23000') {
                 throw $exception;
             }
             $_SESSION['admin_flash'] = 'These vehicle details could not be approved because the plate number is already assigned.';
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
         }
         redirect('admin-dashboard.php#vehicle-review');
     }
@@ -64,15 +86,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit('Invalid application type.');
     }
 
-    $update = db()->prepare(
-        "UPDATE drivers
-         SET verification_status = :status
-         WHERE id = :id AND verification_status = 'pending_verification'"
-    );
-    $update->execute(['status' => $newStatus, 'id' => $recordId]);
-    $_SESSION['admin_flash'] = $update->rowCount() === 1
-        ? 'Application ' . ($newStatus === 'verified' ? 'approved' : 'rejected') . ' successfully.'
-        : 'This application was already reviewed or could not be found.';
+    $pdo = db();
+    $pdo->beginTransaction();
+    try {
+        $update = $pdo->prepare(
+            "UPDATE drivers
+             SET verification_status = :status
+             WHERE id = :id AND verification_status = 'pending_verification'"
+        );
+        $update->execute(['status' => $newStatus, 'id' => $recordId]);
+        $_SESSION['admin_flash'] = $update->rowCount() === 1
+            ? 'Application ' . ($newStatus === 'verified' ? 'approved' : 'rejected') . ' successfully.'
+            : 'This application was already reviewed or could not be found.';
+        if ($update->rowCount() === 1) {
+            record_admin_activity($pdo, $admin, 'driver_' . $newStatus, 'driver', $recordId);
+        }
+        $pdo->commit();
+    } catch (Throwable $exception) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $exception;
+    }
     redirect('admin-dashboard.php');
 }
 
@@ -93,6 +128,29 @@ $counts = $pdo->query(
 $pendingVehicleCount = (int) $pdo->query(
     "SELECT COUNT(*) FROM jeepney_profiles WHERE verification_status = 'pending_verification'"
 )->fetchColumn();
+$overview = [
+    'vehicles' => (int) $pdo->query(
+        "SELECT COUNT(*) FROM jeepney_profiles WHERE verification_status = 'verified'"
+    )->fetchColumn(),
+    'drivers' => (int) $pdo->query(
+        "SELECT COUNT(*) FROM drivers d
+         LEFT JOIN driver_admin_status s ON s.driver_id = d.id
+         WHERE d.verification_status = 'verified'
+           AND COALESCE(s.account_status, 'active') = 'active'"
+    )->fetchColumn(),
+    'terminals' => (int) $pdo->query(
+        'SELECT COUNT(*) FROM terminals WHERE is_active = 1'
+    )->fetchColumn(),
+    'trips' => (int) $pdo->query(
+        "SELECT COUNT(*) FROM trips WHERE trip_status = 'active'"
+    )->fetchColumn(),
+];
+$recentActivity = $pdo->query(
+    'SELECT l.action, l.entity_type, l.entity_id, l.details, l.created_at, a.email
+     FROM activity_logs l
+     LEFT JOIN admins a ON a.id = l.admin_id
+     ORDER BY l.created_at DESC LIMIT 8'
+)->fetchAll();
 
 if ($filter === 'all') {
     $drivers = $pdo->query(
@@ -131,31 +189,76 @@ page_start('Admin dashboard', 'admin-dashboard');
   <div class="admin-page-heading">
     <div>
       <span class="eyebrow"><span class="eyebrow-dot"></span> ADMINISTRATION</span>
-      <h1>Driver applications</h1>
-      <p>Welcome, <?= h((string) $admin['email']) ?>. Review and manage driver verification.</p>
+      <h1>Operations overview</h1>
+      <p>Welcome, <?= h((string) $admin['email']) ?>. Review transport activity and manage the service.</p>
     </div>
     <span class="admin-access-badge"><span aria-hidden="true">✓</span> Admin access</span>
   </div>
 
-  <div class="admin-stats" aria-label="Application statistics">
+  <div class="admin-stats admin-overview-stats" aria-label="Transport operations overview">
+    <a class="admin-stat" href="admin-jeepneys.php">
+      <span class="admin-stat-heading"><span class="admin-stat-icon">🚌</span><span class="admin-stat-label">Registered jeepneys</span></span>
+      <strong><?= h((string) $overview['vehicles']) ?></strong>
+    </a>
+    <a class="admin-stat admin-stat-verified" href="admin-drivers.php">
+      <span class="admin-stat-heading"><span class="admin-stat-icon">👤</span><span class="admin-stat-label">Active drivers</span></span>
+      <strong><?= h((string) $overview['drivers']) ?></strong>
+    </a>
+    <a class="admin-stat" href="admin-routes.php">
+      <span class="admin-stat-heading"><span class="admin-stat-icon">📍</span><span class="admin-stat-label">Available terminals</span></span>
+      <strong><?= h((string) $overview['terminals']) ?></strong>
+    </a>
+    <a class="admin-stat admin-stat-pending" href="admin-trips.php">
+      <span class="admin-stat-heading"><span class="admin-stat-icon">🗺️</span><span class="admin-stat-label">Ongoing trips</span></span>
+      <strong><?= h((string) $overview['trips']) ?></strong>
+    </a>
+  </div>
+
+  <section class="admin-queue">
+    <div class="admin-queue-heading">
+      <div><h2>Recent system activity</h2><p>Administrative changes are recorded for accountability.</p></div>
+      <?php if (($admin['role'] ?? '') === 'owner'): ?><a class="button button-outline" href="admin-settings.php#activity">Full activity log</a><?php endif; ?>
+    </div>
+    <?php if ($recentActivity === []): ?>
+      <div class="admin-empty"><h3>No activity recorded yet</h3><p>Administrative actions will appear here as the system is used.</p></div>
+    <?php else: ?>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Activity</th><th>Record</th><th>Administrator</th><th>Time</th></tr></thead>
+          <tbody>
+          <?php foreach ($recentActivity as $activity): ?>
+            <tr>
+              <td data-label="Activity"><strong><?= h(str_replace('_', ' ', (string) $activity['action'])) ?></strong><?php if ($activity['details'] !== null): ?><small><?= h((string) $activity['details']) ?></small><?php endif; ?></td>
+              <td data-label="Record"><?= h(ucfirst(str_replace('_', ' ', (string) $activity['entity_type']))) ?><?= $activity['entity_id'] === null ? '' : ' #' . h((string) $activity['entity_id']) ?></td>
+              <td data-label="Administrator"><?= h((string) ($activity['email'] ?? 'Deleted account')) ?></td>
+              <td data-label="Time"><?= h(date('M j, Y g:i A', strtotime((string) $activity['created_at']))) ?></td>
+            </tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
+  </section>
+
+  <div class="admin-stats admin-application-stats" aria-label="Application statistics">
     <a class="admin-stat" href="admin-dashboard.php?status=all">
-      <span class="admin-stat-icon">◎</span><span class="admin-stat-label">Total applications</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">◎</span><span class="admin-stat-label">Total applications</span></span>
       <strong><?= h((string) $counts['total']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-pending" href="admin-dashboard.php?status=pending_verification">
-      <span class="admin-stat-icon">◷</span><span class="admin-stat-label">Awaiting review</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">◷</span><span class="admin-stat-label">Awaiting review</span></span>
       <strong><?= h((string) $counts['pending']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-verified" href="admin-dashboard.php?status=verified">
-      <span class="admin-stat-icon">✓</span><span class="admin-stat-label">Approved</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">✓</span><span class="admin-stat-label">Approved</span></span>
       <strong><?= h((string) $counts['verified']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-rejected" href="admin-dashboard.php?status=rejected">
-      <span class="admin-stat-icon">×</span><span class="admin-stat-label">Rejected</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">×</span><span class="admin-stat-label">Rejected</span></span>
       <strong><?= h((string) $counts['rejected']) ?></strong>
     </a>
     <a class="admin-stat admin-stat-pending" href="#vehicle-review">
-      <span class="admin-stat-icon">▰</span><span class="admin-stat-label">Vehicle reviews</span>
+      <span class="admin-stat-heading"><span class="admin-stat-icon">▰</span><span class="admin-stat-label">Vehicle reviews</span></span>
       <strong><?= h((string) $pendingVehicleCount) ?></strong>
     </a>
   </div>
