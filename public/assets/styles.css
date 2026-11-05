@@ -572,6 +572,9 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
   cursor: pointer;
 }
+html.dark-mode .password-visibility-toggle {
+  color: #d4d4d4;
+}
 .password-visibility-toggle:hover {
   color: var(--blue-600);
 }
