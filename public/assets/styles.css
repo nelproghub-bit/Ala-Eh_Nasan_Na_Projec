@@ -4116,3 +4116,107 @@ html.dark-mode .profile-photo-preview {
     flex-direction: column-reverse;
   }
 }
+@media (max-width: 850px) {
+  .auth-layout,
+  .registration-layout {
+    width: 100%;
+    max-width: 720px;
+    grid-template-columns: minmax(0, 1fr);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .auth-layout {
+    min-height: 0;
+  }
+
+  .auth-aside {
+    min-height: clamp(220px, 32vw, 300px);
+  }
+
+  .auth-panel {
+    width: 100%;
+    max-width: 620px;
+    padding: clamp(20px, 4vw, 36px);
+  }
+
+  .registration-layout {
+    gap: 28px;
+    padding: 36px 0;
+  }
+
+  .registration-heading {
+    position: static;
+    padding-top: 0;
+  }
+
+  .registration-card,
+  .registration-form > *,
+  .admin-form-grid > * {
+    min-width: 0;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  }
+
+  .admin-table-wrap {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 650px) {
+  .benefits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .footer-inner {
+    min-height: 0;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 0;
+  }
+
+  .footer-inner > span {
+    max-width: 100%;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .admin-queue-content {
+    padding: 16px;
+  }
+
+  .admin-table-wrap {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .auth-panel {
+    padding: 18px;
+  }
+
+  .registration-layout {
+    gap: 22px;
+    padding: 28px 0;
+  }
+
+  .admin-page-heading,
+  .admin-queue-heading {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .admin-stats {
+    gap: 10px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}
