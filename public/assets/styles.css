@@ -591,6 +591,12 @@ html.dark-mode .password-visibility-toggle {
   stroke-linejoin: round;
   stroke-width: 1.7;
 }
+.password-visibility-toggle [data-eye-slash] {
+  opacity: 0;
+}
+.password-visibility-toggle[aria-pressed="false"] [data-eye-slash] {
+  opacity: 1;
+}
 .password-visibility-toggle[hidden] {
   display: none;
 }

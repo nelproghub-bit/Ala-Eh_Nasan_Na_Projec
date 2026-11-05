@@ -1,9 +1,10 @@
 document.querySelectorAll('.password-visibility-toggle').forEach((button) => {
   const field = button.closest('.password-field');
   const input = field?.querySelector('input[type="password"], input[type="text"]');
-  const icons = button.querySelectorAll('svg');
+  const icon = button.querySelector('svg');
+  const slash = icon?.querySelector('[data-eye-slash]');
 
-  if (!input || icons.length < 2) {
+  if (!input || !icon || !slash) {
     button.hidden = true;
     return;
   }
@@ -13,7 +14,5 @@ document.querySelectorAll('.password-visibility-toggle').forEach((button) => {
     input.type = showPassword ? 'text' : 'password';
     button.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
     button.setAttribute('aria-pressed', String(showPassword));
-    icons[0].hidden = showPassword;
-    icons[1].hidden = !showPassword;
   });
 });
