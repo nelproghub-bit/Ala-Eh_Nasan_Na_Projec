@@ -8,21 +8,29 @@ function db(): PDO
         return $connection;
     }
 
-    $host = getenv('DB_HOST') ?: '127.0.0.1';
-    $port = getenv('DB_PORT') ?: '3306';
-    $name = getenv('DB_NAME') ?: 'ala_eh';
-    $user = getenv('DB_USER') ?: 'driver_app';
-    $password = getenv('DB_PASSWORD');
-    if ($password === false) {
-        // Apache can drop an intentionally blank environment value. Use the
-        // local project configuration in that case (XAMPP's root password is
-        // commonly blank during local development).
-        $environmentFile = dirname(__DIR__) . '/.env';
-        $values = is_file($environmentFile) ? parse_ini_file($environmentFile, false, INI_SCANNER_RAW) : false;
-        if (!is_array($values) || !array_key_exists('DB_PASSWORD', $values)) {
-            throw new RuntimeException('DB_PASSWORD must be configured in the environment.');
+    // Some shared hosts disable putenv(), so an .env value cannot reliably be
+    // promoted to getenv(). Read the local file as a fallback for every DB
+    // setting while still letting actual environment variables take priority.
+    $environmentFile = dirname(__DIR__) . '/.env';
+    $values = is_file($environmentFile) ? parse_ini_file($environmentFile, false, INI_SCANNER_RAW) : [];
+    if (!is_array($values)) {
+        throw new RuntimeException('Unable to read the database configuration.');
+    }
+    $setting = static function (string $name, string $default = '') use ($values): string {
+        $environmentValue = getenv($name);
+        if ($environmentValue !== false && $environmentValue !== '') {
+            return $environmentValue;
         }
-        $password = (string) $values['DB_PASSWORD'];
+        return isset($values[$name]) && is_string($values[$name]) ? $values[$name] : $default;
+    };
+
+    $host = $setting('DB_HOST', '127.0.0.1');
+    $port = $setting('DB_PORT', '3306');
+    $name = $setting('DB_NAME', 'ala_eh');
+    $user = $setting('DB_USER', 'driver_app');
+    $password = $setting('DB_PASSWORD');
+    if ($password === '') {
+        throw new RuntimeException('DB_PASSWORD must be configured in the environment.');
     }
 
     $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $name);
