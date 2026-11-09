@@ -65,6 +65,3 @@
 .legend-detail.availability-key > .key-jeep { display:none; }
 
 @media (prefers-reduced-motion: reduce) { .hero-jeepney,.hero-pedestrian,.hero-pedestrian em,.hero-pedestrian em::after { animation:none; } }
-
-/* A short forward drift gives the jeepney a continuous in-motion feel without moving the fixed composition. */
-@keyframes hero-jeepney-suspension { 0%,100% { transform:translate(0,0); } 50% { transform:translate(4px,-2px); } }
