@@ -95,7 +95,9 @@ export function activeDriversSummary(record) {
     item.append(details);
     if (Number.isSafeInteger(Number(driver.route_id)) && Number(driver.route_id) > 0) {
       const route = element('a', 'terminal-action active-driver-route', translate('View route'));
-      route.href = `user-map.html?route=${encodeURIComponent(driver.route_id)}&terminal=${encodeURIComponent(record.id)}&location=${encodeURIComponent(driver.location_key || record.slug || '')}&focus=terminal&from=terminals`;
+      // Route-only mode deliberately does not request a passenger location or
+      // calculate passenger-to-terminal directions.
+      route.href = `user-map.html?route=${encodeURIComponent(driver.route_id)}&terminal=${encodeURIComponent(record.id)}&location=${encodeURIComponent(driver.location_key || record.slug || '')}&routeOnly=1&from=terminals`;
       route.setAttribute('aria-label', translate('View route for {name}', { name: driver.name || 'driver' }));
       item.append(route);
     }

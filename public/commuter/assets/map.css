@@ -80,3 +80,6 @@
   .system-map-panel { padding: 10px; }
   #map-locations { grid-template-columns: 1fr; }
 }
+/* A route opened from an active-driver card is intentionally privacy-first. */
+.map-route-only .map-legend span:has(.user-dot) { display: none; }
+.map-route-only .map-proximity-note { display: none; }

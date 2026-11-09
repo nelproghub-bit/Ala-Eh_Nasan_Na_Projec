@@ -1,4 +1,4 @@
-import { fetchTerminals, filterTerminals, boardingRouteSummary, verifiedCoordinates, landmarkCoordinates, mapCoordinates, googleMapsUrl, directionsUrl, detailsUrl, element, translate } from './terminals-common.js?v=8';
+import { fetchTerminals, filterTerminals, boardingRouteSummary, verifiedCoordinates, landmarkCoordinates, mapCoordinates, googleMapsUrl, directionsUrl, detailsUrl, element, translate } from './terminals-common.js?v=9';
 import { terminalMap } from './terminals-map.js?v=12';
 import { focusTerminal } from './map-selection.js?v=7';
 import { routeClient, formatDistance, validPosition } from './routing.js?v=2';
@@ -14,10 +14,12 @@ const entryParameters = new URLSearchParams(location.search);
 const requestedId = Number(entryParameters.get('terminal'));
 const requestedRouteId = Number(entryParameters.get('route'));
 const requestedLocationKey = entryParameters.get('location') || '';
+const routeOnlyRequested = entryParameters.get('routeOnly') === '1'
+  && Number.isSafeInteger(requestedRouteId) && requestedRouteId > 0;
 let selectedId = Number.isSafeInteger(requestedId) && requestedId > 0 ? requestedId : null;
-const focusRequestedTerminal = selectedId !== null && entryParameters.get('focus') === 'terminal';
+const focusRequestedTerminal = !routeOnlyRequested && selectedId !== null && entryParameters.get('focus') === 'terminal';
 // A terminal detail page already supplies focus=terminal; treat that handoff as a directions request.
-const directionsRequested = focusRequestedTerminal;
+const directionsRequested = !routeOnlyRequested && focusRequestedTerminal;
 const get = id => document.getElementById(id);
 const list = get('map-locations');
 const count = get('map-result-count'), status = get('system-map-status'), locationStatus = get('user-location-status');
@@ -32,6 +34,14 @@ const terminalPanel = get('map-terminal-panel');
 const searchButton = get('map-search'), searchInput = get('map-search-query');
 const nearestSearchButton = get('map-search-nearest');
 const requestRoute = routeClient();
+if (routeOnlyRequested) {
+  document.body.classList.add('map-route-only');
+  locateButton.hidden = true;
+  nearestSearchButton.hidden = true;
+  get('map-location-indicator').hidden = true;
+  locationStatus.hidden = true;
+  locationPrompt.hidden = true;
+}
 let records = [], mapState = null, userMarker = null, userPosition = null;
 let loadFailure = null, loading = true, locating = false, locationMessage = '', pendingLocation = null;
 // Normal Map entry follows the user; a directory/details click explicitly focuses its terminal.
@@ -45,7 +55,7 @@ let terminalPinRequested = selectedId !== null;
 let routePreview = null, requestedRouteLayer = null, requestedRouteLoading = false, requestedRouteDisplayed = false;
 let automaticLocationRequested = false;
 let automaticDirectionsStarted = false;
-let userAccuracyCircle = null, followingLocation = !focusRequestedTerminal, trackingState = 'paused', trackingMap = null;
+let userAccuracyCircle = null, followingLocation = !(focusRequestedTerminal || routeOnlyRequested), trackingState = 'paused', trackingMap = null;
 const locationFreshness = 60000;
 const locationAccuracyNotice = 100;
 const secureLocationMessage = 'Location access requires a secure HTTPS connection. Open the system using a trusted HTTPS link.';
@@ -109,7 +119,7 @@ const renderMap = terminalMap(get('system-map'), status, {
     updateSearchControls();
     updateLocationGate();
     if (focusSelection && focusTerminal(state, selectedRecord(), mapViewPadding(), !terminalPinRequested)) focusSelection = false;
-    if (!loading && !automaticLocationRequested) {
+    if (!routeOnlyRequested && !loading && !automaticLocationRequested) {
       automaticLocationRequested = true;
       if (!document.hidden) locationTracker.start();
     }
@@ -118,6 +128,12 @@ const renderMap = terminalMap(get('system-map'), status, {
 });
 
 function updateLocationGate() {
+  // “View route” shows an approved jeepney route only. Never request or draw
+  // the passenger location while that dedicated route view is open.
+  if (routeOnlyRequested) {
+    if (locationGate.open) locationGate.close();
+    return;
+  }
   if (mapAccessGranted) {
     if (locationGate.open) {
       locationGate.close();
