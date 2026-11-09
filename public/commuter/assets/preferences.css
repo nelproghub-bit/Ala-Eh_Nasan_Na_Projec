@@ -109,6 +109,41 @@
 [data-theme="dark"] .passenger-page .sidebar-logout { background: #291622; color: #ffadbf; border-color: #623047; }
 [data-theme="dark"] .passenger-page .sidebar-logout:hover { background: #3b1c2c; border-color: #98506b; }
 [data-theme="dark"] .passenger-page .profile-error { color: #ffadbf; }
+
+/* Dashboard-specific surfaces use their own visual layer, so they need
+   explicit dark counterparts in addition to the shared token palette. */
+[data-theme="dark"] .passenger-dashboard-page,
+[data-theme="dark"] .passenger-dashboard-page .app-content { background: #060715; color: var(--ink); }
+[data-theme="dark"] .passenger-dashboard-page .commuter-mobile-header { background: rgb(8 10 27 / 94%); box-shadow: 0 1px 0 rgb(131 158 255 / 12%); }
+[data-theme="dark"] .passenger-dashboard-page .mobile-menu-toggle { background: #172141; }
+[data-theme="dark"] .passenger-dashboard-page .mobile-menu-toggle span { background: #b9caff; }
+[data-theme="dark"] .passenger-dashboard-page .header-brand-name { color: #f1f4ff; }
+[data-theme="dark"] .passenger-dashboard-page .header-brand-name span { color: #aab7d7; }
+[data-theme="dark"] .passenger-dashboard-page .notification-button { color: #b9caff; }
+[data-theme="dark"] .passenger-dashboard-page .live-overview,
+[data-theme="dark"] .passenger-dashboard-page .dashboard-info-card,
+[data-theme="dark"] .passenger-dashboard-page .action-card,
+[data-theme="dark"] .passenger-dashboard-page .map-legend { background: linear-gradient(145deg, #11162f, #0d1025); border-color: #283253; box-shadow: inset 0 1px 0 rgb(157 180 255 / 5%), 0 12px 32px rgb(0 0 0 / 24%); }
+[data-theme="dark"] .passenger-dashboard-page .stat-card:not(.stat-card-blue) { background: #111831; border-color: #2b385e; box-shadow: 0 5px 15px rgb(0 0 0 / 20%); }
+[data-theme="dark"] .passenger-dashboard-page .stat-card:not(.stat-card-blue) > span { color: #9ab8ff; }
+[data-theme="dark"] .passenger-dashboard-page .stat-card:not(.stat-card-blue) b,
+[data-theme="dark"] .passenger-dashboard-page .action-card strong,
+[data-theme="dark"] .passenger-dashboard-page .dashboard-card-heading h2,
+[data-theme="dark"] .passenger-dashboard-page .availability-heading h2,
+[data-theme="dark"] .passenger-dashboard-page .legend-detail strong,
+[data-theme="dark"] .passenger-dashboard-page .route-availability-item strong { color: #edf1ff; }
+[data-theme="dark"] .passenger-dashboard-page :is(.stat-card:not(.stat-card-blue) small, .action-card small, .legend-detail small, .availability-scale small, .route-availability-list > p) { color: #aab5d1; }
+[data-theme="dark"] .passenger-dashboard-page :is(.dashboard-card-heading, .availability-heading, .legend-detail, .availability-scale, .route-availability-item) { border-color: #283253; }
+[data-theme="dark"] .passenger-dashboard-page .availability-scale b { color: #d9e2ff; }
+[data-theme="dark"] .passenger-dashboard-page .route-availability-item::after { border-color: #a8bcf4; }
+[data-theme="dark"] .passenger-dashboard-page .route-availability-item:hover,
+[data-theme="dark"] .passenger-dashboard-page .route-availability-item:focus-visible { background: #192448; }
+[data-theme="dark"] .passenger-dashboard-page .map-open-link { color: #a8c2ff; }
+[data-theme="dark"] .passenger-dashboard-page .dashboard-map-shell { border-color: #303c60; box-shadow: 0 8px 24px rgb(0 0 0 / 28%); }
+[data-theme="dark"] .passenger-dashboard-page .dashboard-map-status { background: rgb(8 11 27 / 90%); color: #c0cbe6; }
+[data-theme="dark"] .passenger-dashboard-page .action-card b { color: #a9c1ff; }
+[data-theme="dark"] .passenger-dashboard-page .terminal-action { background: #3a1e2c; color: #ffb3c0; }
+[data-theme="dark"] .passenger-dashboard-page .routes-action { background: #172b52; color: #a9c8ff; }
 @media (max-width: 480px) {
   .passenger-dashboard-page .top-header { gap: 8px; }
   .passenger-profile { gap: 6px; }

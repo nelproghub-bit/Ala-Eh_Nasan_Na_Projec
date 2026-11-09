@@ -7,7 +7,7 @@
     if (!form) return;
     const ui = window.PassengerUI, t = text => ui.t(text);
     const name = get('settings-name'), theme = get('settings-theme'), language = get('settings-language');
-    const error = get('settings-error'), status = get('settings-status'), save = get('settings-save');
+    const error = get('settings-error'), status = get('settings-status');
     let saving = false, edited = false;
     function fill() {
       const saved = ui.getPreferences();
@@ -27,33 +27,46 @@
       error.hidden = true;
       status.textContent = '';
     });
-    form.addEventListener('submit', async event => {
-      event.preventDefault();
+    async function saveName() {
       if (saving) return;
       error.hidden = true; status.textContent = '';
       if (!name.value.trim()) {
         name.setCustomValidity(t('Enter a name before saving.'));
-        name.reportValidity(); return;
+        name.reportValidity(); return false;
       }
-      if (!form.reportValidity()) return;
-      const values = { name: name.value, theme: theme.value, language: language.value };
-      saving = true; save.disabled = true; form.setAttribute('aria-busy', 'true');
+      if (!form.reportValidity()) return false;
+      saving = true; form.setAttribute('aria-busy', 'true');
       try {
-        await ui.updateAccountName(values.name);
-        ui.savePreferences(values);
+        await ui.updateAccountName(name.value);
+        ui.savePreferences({ name: name.value });
         edited = false;
-        status.textContent = t('Settings saved.');
+        status.textContent = t('Name saved.');
+        return true;
       } catch (cause) {
         error.textContent = t(cause.message || 'Could not save your settings. Please try again.');
         error.hidden = false;
+        return false;
       } finally {
-        saving = false; save.disabled = false; form.setAttribute('aria-busy', 'false');
+        saving = false; form.setAttribute('aria-busy', 'false');
       }
+    }
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      saveName();
     });
-    get('settings-cancel').addEventListener('click', fill);
+    name.addEventListener('change', saveName);
+    function savePreference(field, message) {
+      if (saving) return;
+      error.hidden = true;
+      ui.savePreferences({ [field]: field === 'theme' ? theme.value : language.value });
+      edited = false;
+      status.textContent = t(message);
+    }
+    theme.addEventListener('change', () => savePreference('theme', 'Theme updated.'));
+    language.addEventListener('change', () => savePreference('language', 'Language updated.'));
     document.addEventListener('passenger-preferences-changed', () => { if (!saving && !edited) fill(); });
     const profile = get('settings-open-profile');
-    profile.addEventListener('click', () => ui.openProfile(profile));
+    profile?.addEventListener('click', () => ui.openProfile(profile));
 
     const passwordForm = get('commuter-password-form');
     const current = get('current-password'), next = get('new-password'), confirm = get('confirm-password');
