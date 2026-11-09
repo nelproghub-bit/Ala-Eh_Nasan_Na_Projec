@@ -5,6 +5,12 @@ const fs = require('node:fs');
 const source = fs.readFileSync('public/commuter/assets/user.js', 'utf8');
 const html = fs.readFileSync('public/commuter/user-login.html', 'utf8');
 
+test('credential forms declare local POST destinations and contain no preview password form', () => {
+  assert.match(html, /<form[^>]+id="passenger-login"[^>]+method="post"[^>]+action="api\/auth\.php\?action=login"/);
+  assert.match(html, /<form[^>]+id="passenger-register"[^>]+method="post"[^>]+action="api\/auth\.php\?action=register"/);
+  assert.doesNotMatch(html, /id="driver-login"|id="driver-password"|Driver sign-in preview/);
+});
+
 async function signIn(result, ok = true) {
   const nodes = new Map(), redirects = [], requests = [];
   for (const match of html.matchAll(/\bid="([^"]+)"/g)) nodes.set(match[1], {

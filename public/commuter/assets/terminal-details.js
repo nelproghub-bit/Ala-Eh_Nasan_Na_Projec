@@ -22,7 +22,7 @@ function render(record) {
   document.getElementById('terminal-title').textContent = record.name;
   document.getElementById('terminal-municipality').textContent = record.municipality;
   document.getElementById('terminal-address').textContent = record.address;
-  document.getElementById('terminal-view-map').href = `user-map.html?terminal=${encodeURIComponent(record.id)}&focus=terminal`;
+  document.getElementById('terminal-view-map').href = `user-map.html?terminal=${encodeURIComponent(record.id)}&focus=terminal&directions=1`;
   document.getElementById('open-google-maps')?.remove();
   const googleUrl = googleMapsUrl(record);
   if (googleUrl) {

@@ -329,7 +329,7 @@
     }
     updated = updated.replace(/^(\s*\d+\s*\/\s*\d+)\s+available(\s*)$/, '$1 na bakante$2');
     updated = updated.replace(/^(\s*\/\s*\d+)\s+seats available(\s*)$/, '$1 na bakanteng upuan$2');
-    updated = updated.replace(/^(\s*\d+)\s+occupied\s+·\s+(\d+)% occupied(\s*)$/, '$1 okupado · $2% okupado$3');
+    updated = updated.replace(/^(\s*\d+)\s+occupied\s+ - \s+(\d+)% occupied(\s*)$/, '$1 okupado  -  $2% okupado$3');
     updated = updated.replace(/^(\s*\d+)% available(\s*)$/, '$1% bakante$2');
     if (updated !== original) node.nodeValue = updated;
   };

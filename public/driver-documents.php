@@ -95,7 +95,7 @@ page_start('My documents', 'driver-documents');
         <div class="documents-file-zone" id="document-drop-zone">
           <span class="documents-file-symbol" aria-hidden="true">↑</span>
           <label for="document-file">Choose a file to upload</label>
-          <p id="document-file-help">PDF, JPG or PNG · Up to 8 MB</p>
+          <p id="document-file-help">PDF, JPG or PNG  -  Up to 8 MB</p>
           <input id="document-file" type="file" name="document" required accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" aria-describedby="document-file-help document-file-status">
           <p id="document-file-status" role="status">No file selected</p>
         </div>
@@ -114,7 +114,7 @@ page_start('My documents', 'driver-documents');
             <li class="documents-item">
               <div class="documents-item-top"><h3><?= h(DRIVER_DOCUMENT_TYPES[$document['document_type']] ?? 'Supporting document') ?></h3><span class="documents-badge <?= h($document['review_status']) ?>"><?= h($statusLabels[$document['review_status']]) ?></span></div>
               <p class="documents-filename"><?= h((string) $document['original_name']) ?></p>
-              <div class="documents-item-meta"><time datetime="<?= h(date('c', strtotime($document['uploaded_at']))) ?>">Uploaded <?= h(date('M j, Y · g:i A', strtotime($document['uploaded_at']))) ?></time><a href="driver-document.php?id=<?= (int) $document['id'] ?>" aria-label="Download <?= h((string) $document['original_name']) ?>">Download ↓</a></div>
+              <div class="documents-item-meta"><time datetime="<?= h(date('c', strtotime($document['uploaded_at']))) ?>">Uploaded <?= h(date('M j, Y  -  g:i A', strtotime($document['uploaded_at']))) ?></time><a href="driver-document.php?id=<?= (int) $document['id'] ?>" aria-label="Download <?= h((string) $document['original_name']) ?>">Download ↓</a></div>
               <?php if (!empty($document['review_note'])): ?><div class="documents-feedback"><strong>Administrator note</strong><p><?= nl2br(h((string) $document['review_note'])) ?></p></div><?php endif; ?>
               <?php if ($document['review_status'] === 'rejected'): ?><p class="documents-retry">Review the feedback, then upload a corrected copy using the form.</p><?php endif; ?>
             </li>

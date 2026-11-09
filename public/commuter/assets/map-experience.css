@@ -12,8 +12,7 @@ body.map-experience { height: 100dvh; overflow: hidden; }
 .map-floating-controls button { display: grid; place-items: center; width: 44px; height: 44px; padding: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface, var(--white)); color: var(--blue-700); box-shadow: 0 4px 16px rgb(15 23 42 / 12%); cursor: pointer; }
 .map-floating-controls button:disabled { opacity: .55; cursor: wait; }
 .map-floating-controls svg { width: 22px; height: 22px; flex-shrink: 0; }
-.map-floating-controls #map-search { display: flex; width: auto; gap: 6px; padding: 10px 12px; }
-.map-search-label { font-size: 12px; font-weight: 600; }
+.map-search-label { display: none; }
 .map-panel-open #map-search { display: none; }
 .map-terminal-search { margin-bottom: 16px; }
 .map-terminal-search > label { display: block; margin-bottom: 7px; color: var(--ink); font-size: 12px; font-weight: 600; }

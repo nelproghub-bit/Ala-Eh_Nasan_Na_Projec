@@ -94,6 +94,7 @@
   "Name, landmark, or municipality": "Pangalan, palatandaan, o munisipalidad",
   "Closest to me": "Pinakamalapit sa akin",
   "My location": "Aking lokasyon",
+  "Go to my location": "Pumunta sa aking lokasyon",
   "My location and closest terminal": "Aking lokasyon at pinakamalapit na terminal",
   "Live location": "Kasalukuyang lokasyon",
   "Your location": "Iyong lokasyon",

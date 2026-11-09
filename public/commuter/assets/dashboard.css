@@ -1,99 +1,65 @@
-/* Dashboard presentation, loaded after the shared passenger styles. */
-.passenger-dashboard-page .app-layout { width: 100%; }
-.passenger-dashboard-page .app-content { min-width: 0; }
-.passenger-dashboard-page .sidebar { width: 280px; height: 100dvh; }
-.passenger-dashboard-page .sidebar-header { min-height: 80px; padding: 20px; }
-.passenger-dashboard-page .sidebar-brand { min-width: 0; gap: 10px; }
-.passenger-dashboard-page .sidebar-brand-mark { width: 44px; height: 44px; flex-basis: 44px; object-fit: contain; }
-.passenger-dashboard-page .sidebar-brand-name { font-size: 14px; white-space: normal; }
-.passenger-dashboard-page .sidebar-brand-name span { font-size: 10px; }
-.passenger-dashboard-page .sidebar-link { min-height: 42px; gap: 10px; padding: 8px 12px; font-size: 13px; }
-.passenger-dashboard-page .sidebar-link-text { white-space: normal; line-height: 1.4; }
-.passenger-dashboard-page .sidebar-link .dashboard-icon { width: 18px; height: 18px; }
-.passenger-dashboard-page .sidebar-link.active { box-shadow: 0 2px 6px rgb(37 99 235 / 16%); }
-.passenger-dashboard-page .sidebar-footer { display: flex; justify-content: center; }
-.passenger-dashboard-page .sidebar-logout { width: auto; min-height: 36px; gap: 8px; padding: 8px 12px; border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; font-size: 12px; font-weight: 700; }
-.passenger-dashboard-page .sidebar-logout:hover { border-color: #fca5a5; background: #fee2e2; color: #991b1b; }
-.passenger-dashboard-page .sidebar-logout:focus-visible { outline-color: #b91c1c; }
-.passenger-dashboard-page .sidebar-logout .dashboard-icon { width: 16px; height: 16px; }
-.passenger-dashboard-page .dashboard-icon { display: block; flex-shrink: 0; width: 22px; height: 22px; stroke-linecap: round; stroke-linejoin: round; }
-.passenger-dashboard-page .top-header { min-height: 80px; }
-.passenger-profile { display: flex; align-items: center; gap: 10px; min-width: 0; margin-left: auto; }
-.passenger-profile-avatar { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; border-radius: 50%; background: var(--blue-50); color: var(--blue-700); font-size: 14px; font-weight: 800; }
-.passenger-profile-info { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
-.passenger-profile-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-lighter); font-size: 13px; font-weight: 700; }
-.passenger-profile-role { color: var(--muted); font-size: 11px; }
-.passenger-dashboard-page .site-main { padding: 32px; }
-.passenger-dashboard-page .passenger-dashboard { max-width: 1120px; min-height: 0; padding-top: 0; }
-.passenger-dashboard-page .dashboard-heading { position: relative; overflow: hidden; margin: 0 0 20px; padding: 36px; background: linear-gradient(120deg, var(--blue-800), var(--blue-950)); box-shadow: 0 10px 30px rgb(15 23 42 / 10%); }
-.passenger-dashboard-page .dashboard-heading::after { content: ''; position: absolute; width: 240px; height: 240px; right: -70px; top: -100px; border: 40px solid rgb(255 255 255 / 4%); border-radius: 50%; pointer-events: none; }
-.passenger-dashboard-page .dashboard-heading h2 { position: relative; z-index: 1; margin: 18px 0 12px; color: var(--white); font-size: clamp(28px, 3.2vw, 42px); font-weight: 800; letter-spacing: -0.04em; }
-.passenger-dashboard-page .dashboard-heading h2 span { color: #bfdbfe; }
-.passenger-dashboard-page .dashboard-heading > p { font-size: 14px; }
-.passenger-dashboard-page .passenger-demo { margin: 0; padding: 14px 18px; border-radius: var(--radius-lg); }
-.passenger-dashboard-page .passenger-demo strong { font-size: 13px; }
-.passenger-dashboard-page .passenger-welcome { margin: 24px 0; padding: 24px 28px; box-shadow: none; }
-.passenger-dashboard-page .passenger-welcome h2 { font-size: clamp(22px, 2.5vw, 28px); }
-.passenger-dashboard-page .passenger-welcome p { font-size: 14px; }
-.passenger-dashboard-page .passenger-welcome-icon { width: 64px; height: 64px; border-radius: 18px; }
-.passenger-dashboard-page .passenger-welcome-icon .dashboard-icon { width: 30px; height: 30px; }
-.passenger-dashboard-page .passenger-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 24px; }
-.passenger-dashboard-page .passenger-card-link { color: inherit; text-decoration: none; transition: border-color .2s ease, box-shadow .2s ease; }
-.passenger-dashboard-page .passenger-card-link:hover { border-color: var(--blue-400); box-shadow: 0 6px 24px rgb(37 99 235 / 10%); }
-.passenger-dashboard-page .passenger-card-link:focus-visible { outline: 2px solid var(--blue-600); outline-offset: 3px; border-radius: var(--radius-xl); }
-.passenger-dashboard-page .passenger-card-link .passenger-state { color: var(--blue-600); font-weight: 600; }
-.passenger-dashboard-page .passenger-card { display: flex; flex-direction: column; min-width: 0; padding: 24px; box-shadow: 0 4px 18px rgb(15 23 42 / 3%); }
-.passenger-dashboard-page .passenger-card p { margin-bottom: 20px; }
-.passenger-dashboard-page .passenger-state { margin-top: auto; padding-top: 16px; }
-.passenger-dashboard-page .next-step-card { margin: 0; padding: 20px 24px; background: transparent; }
-.passenger-dashboard-page .terminals-empty { align-items: center; padding: 48px 24px; text-align: center; }
-.passenger-dashboard-page .terminals-empty p { max-width: 420px; }
-.terminals-back { color: var(--blue-600); font-size: 13px; font-weight: 600; }
-.terminals-back:hover { text-decoration: underline; }
-/* A brighter, illustrated welcome banner, separate from the module cards. */
-.passenger-dashboard-page .dashboard-heading.journey-banner { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: center; gap: 24px; min-height: 238px; padding: 34px 40px; border: 1px solid #6094ff; border-radius: 24px; background: linear-gradient(115deg, #153c9a, #2563eb 65%, #3b82f6); box-shadow: 0 12px 32px rgb(37 99 235 / 17%); }
-.passenger-dashboard-page .dashboard-heading.journey-banner::after { display: none; }
-.journey-banner-copy { position: relative; z-index: 1; min-width: 0; }
-.passenger-dashboard-page .journey-banner h2 { margin: 0 0 14px; color: #fff; font-size: clamp(30px, 3.1vw, 42px); line-height: 1.15; letter-spacing: -.045em; }
-.passenger-dashboard-page .journey-banner h2 span { display: block; color: #c7e7ff; }
-.journey-banner-copy p { max-width: 530px; margin: 0; color: #e0edff; font-size: 14px; line-height: 1.7; }
-.journey-banner-scene { position: relative; align-self: stretch; min-height: 170px; overflow: hidden; }
-.journey-banner-road { position: absolute; width: 320px; height: 210px; top: -20px; right: -40px; color: rgb(255 255 255 / 12%); pointer-events: none; }
-.journey-banner-jeepney { position: absolute; width: 216px; height: auto; bottom: 16px; right: -4px; transform: rotate(-5deg); filter: drop-shadow(0 12px 12px rgb(5 24 76 / 28%)); }
-[data-theme="dark"] .passenger-page .dashboard-heading.journey-banner { background: radial-gradient(ellipse at 95% 10%, rgb(117 174 255 / 25%), transparent 58%), linear-gradient(115deg, #13245d, #214ab5 65%, #2c61d4); border-color: #416bc2; box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%), 0 12px 36px rgb(12 40 133 / 28%); }
-[data-theme="dark"] .passenger-page .journey-banner h2 span { color: #bdddff; }
-@media (max-width: 800px) {
-  .passenger-dashboard-page .dashboard-heading.journey-banner { grid-template-columns: minmax(0, 1fr) 200px; gap: 16px; padding: 28px; }
-  .journey-banner-jeepney { width: 180px; right: -8px; }
+/* Mobile-first commuter dashboard. */
+.passenger-dashboard-page { background:#eef5ff; color:#0b2145; }.passenger-dashboard-page .app-content{width:100%;min-height:100dvh;background:#f7faff}.passenger-dashboard-page .site-main{max-width:520px;margin:auto;padding:14px 16px calc(95px + env(safe-area-inset-bottom))}.passenger-dashboard-page .sidebar{width:min(84vw,320px)}
+.commuter-mobile-header{position:sticky;z-index:20;top:0;display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;min-height:64px;padding:max(10px,env(safe-area-inset-top)) 16px 10px;border:0;background:rgb(247 250 255 / 94%);box-shadow:0 1px 0 rgb(15 55 110 / 7%);backdrop-filter:blur(16px)}.passenger-dashboard-page .mobile-menu-toggle{display:grid;width:38px;height:38px;place-content:center;gap:4px;padding:0;border:0;border-radius:12px;background:#e9f2ff}.passenger-dashboard-page .mobile-menu-toggle span{width:17px;height:2px;border-radius:2px;background:#164d91}.passenger-dashboard-page .header-brand{min-width:0;margin-left:8px;gap:8px}.passenger-dashboard-page .header-brand img{width:34px;height:34px}.passenger-dashboard-page .header-brand-name{color:#102b54;font-size:12px;font-weight:800;white-space:nowrap}.passenger-dashboard-page .header-brand-name span{color:#6680a5;font-size:8px;letter-spacing:.12em}.header-tools{display:flex;align-items:center;gap:8px}.notification-button{position:relative;display:grid;width:36px;height:36px;place-items:center;padding:0;border:0;border-radius:12px;color:#164d91;background:transparent;font-size:21px}.notification-button i{position:absolute;top:7px;right:7px;width:6px;height:6px;border:1px solid #fff;border-radius:50%;background:#ef4444}.passenger-dashboard-page .passenger-profile{display:flex;margin:0}.passenger-profile-avatar{display:grid;width:34px;height:34px;place-items:center;border:2px solid #d8e8ff;border-radius:50%;background:linear-gradient(135deg,#1d5dd1,#2b83f6);color:#fff;font-size:12px;font-weight:800}.passenger-dashboard-page .passenger-back-button{display:none}
+.commuter-dashboard{display:grid;gap:18px}.commuter-hero{position:relative;display:grid;min-height:202px;grid-template-columns:minmax(0,1.15fr) minmax(122px,.85fr);overflow:hidden;padding:24px 20px 18px;border-radius:24px;background:radial-gradient(circle at 88% 18%,rgb(142 208 255 / 38%),transparent 25%),linear-gradient(130deg,#092b74,#1260d6 60%,#3285f4);box-shadow:0 14px 28px rgb(28 93 193 / 24%);color:#fff}.hero-copy{position:relative;z-index:1}.hero-kicker{display:flex;align-items:center;gap:6px;color:#cae3ff;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.hero-kicker i,.live-badge i,.map-live-chip i{width:6px;height:6px;border-radius:50%;background:#63f0ae;box-shadow:0 0 0 3px rgb(99 240 174 / 18%)}.commuter-hero h1{margin:13px 0 8px;color:#fff;font:800 clamp(25px,7.1vw,35px)/1.06 "Plus Jakarta Sans",sans-serif;letter-spacing:-.055em}.commuter-hero h1 em{color:#bce5ff;font-style:normal}.commuter-hero p{max-width:215px;margin:0;color:#dfedff;font-size:11px;line-height:1.55}.hero-jeepney{position:relative}.hero-jeepney img{position:absolute;z-index:1;width:min(176px,134%);right:-22px;bottom:7px;filter:drop-shadow(0 11px 9px rgb(3 29 92 / 30%))}
+.section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.eyebrow{margin:0 0 3px;color:#3978d6;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.section-heading h2{margin:0;color:#112d56;font:800 17px/1.2 "Plus Jakarta Sans",sans-serif;letter-spacing:-.035em}.live-badge{display:inline-flex;align-items:center;gap:6px;margin-top:2px;padding:6px 9px;border-radius:99px;background:#e4fff1;color:#11864d;font-size:9px;font-weight:800}.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.stat-card{min-width:0;padding:13px 11px;border:1px solid #e0ebfb;border-radius:17px;background:#fff;box-shadow:0 5px 15px rgb(20 71 138 / 5%)}.stat-card-blue{border-color:#2e76e8;background:linear-gradient(150deg,#135bc7,#2d82ec);color:#fff}.stat-card>span{display:block;margin-bottom:8px;color:#337ce5;font-size:14px;line-height:1}.stat-card-blue>span{color:#bfe4ff}.stat-card strong{display:block;font:800 20px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:-.05em}.stat-card b{display:block;min-height:25px;margin-top:6px;color:#3b5680;font-size:9px;line-height:1.25}.stat-card-blue b{color:#e4f2ff}.stat-card small{display:block;margin-top:6px;color:#8295b2;font-size:8px}.stat-card-blue small{color:#c8e5ff}
+.live-map-section{display:grid;gap:11px}.map-open-link{margin-top:2px;color:#2468cd;font-size:10px;font-weight:800;text-decoration:none}.dashboard-map{position:relative;height:245px;overflow:hidden;border:1px solid #d5e6ef;border-radius:21px;background-color:#e9f4ec;background-image:linear-gradient(28deg,transparent 47%,rgb(143 182 166 / 27%) 48%,rgb(143 182 166 / 27%) 52%,transparent 53%),linear-gradient(112deg,transparent 47%,rgb(143 182 166 / 23%) 48%,rgb(143 182 166 / 23%) 52%,transparent 53%),radial-gradient(circle at 12% 18%,rgb(176 210 169 / 46%) 0 11px,transparent 12px),radial-gradient(circle at 84% 78%,rgb(176 210 169 / 48%) 0 15px,transparent 16px);box-shadow:0 6px 20px rgb(10 66 97 / 8%)}.map-road{position:absolute;display:block;background:#fffdf6;box-shadow:0 0 0 2px #c9d6d0,0 0 0 4px rgb(255 255 255 / 70%)}.road-one{width:124%;height:24px;top:48%;left:-12%;transform:rotate(-14deg)}.road-two{width:22px;height:120%;top:-10%;left:51%;transform:rotate(21deg)}.road-three{width:84%;height:19px;top:23%;left:17%;transform:rotate(19deg)}.route-line{position:absolute;top:37%;left:23%;width:53%;height:30%;border:3px dashed #3179e6;border-bottom:0;border-left:0;border-radius:0 45px 0 0;transform:rotate(12deg)}.map-place{position:absolute;z-index:2;padding:3px 6px;border-radius:5px;background:rgb(255 255 255 / 70%);color:#68817c;font-size:8px;font-weight:700}.place-one{top:16px;left:18px}.place-two{right:13px;bottom:22px}.terminal-pin{position:absolute;z-index:4;display:grid;width:20px;height:20px;place-items:center;border:3px solid #fff;border-radius:50% 50% 50% 0;background:#ee4653;box-shadow:0 3px 7px rgb(114 33 33 / 25%);color:transparent;transform:rotate(-45deg)}.pin-one{top:70px;left:20%}.pin-two{top:53%;right:22%}.pin-three{bottom:26px;left:41%}.jeep-marker{position:absolute;z-index:5;display:grid;width:32px;height:28px;place-items:center;border-radius:9px;background:#1a6fe4;box-shadow:0 4px 9px rgb(15 70 150 / 28%);color:#fff;font-size:21px}.jeep-two{background:#f59e0b}.jeep-one{top:30%;right:33%}.jeep-two{bottom:20%;left:14%}.user-location{position:absolute;z-index:7;top:55%;left:53%;display:grid;width:21px;height:21px;place-items:center;border:4px solid #fff;border-radius:50%;background:#1f78f2;box-shadow:0 0 0 5px rgb(31 120 242 / 22%),0 3px 8px rgb(12 76 172 / 30%)}.user-location i{width:5px;height:5px;border-radius:50%;background:#fff}.map-live-chip{position:absolute;z-index:8;right:11px;top:11px;display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;background:rgb(255 255 255 / 91%);box-shadow:0 2px 7px rgb(28 65 94 / 12%);color:#3d6082;font-size:8px;font-weight:800}.map-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:10px;border-radius:14px;background:#fff;color:#5d7394;box-shadow:0 3px 13px rgb(28 68 125 / 5%);font-size:8px;line-height:1.35}.map-legend span{display:flex;gap:5px}.legend-terminal,.legend-location{width:8px;height:8px;margin-top:1px;flex:0 0 auto;border-radius:50%}.legend-terminal{background:#ef4d59}.legend-jeep{color:#2477ec;font-size:12px;line-height:8px}.legend-location{border:2px solid #fff;background:#1f78f2;box-shadow:0 0 0 2px #1f78f2}
+.quick-actions{display:grid;gap:10px}.action-card{display:grid;grid-template-columns:42px minmax(0,1fr) 20px;align-items:center;gap:11px;min-height:75px;padding:12px;border:1px solid #e1ebfa;border-radius:18px;background:#fff;box-shadow:0 5px 15px rgb(22 74 145 / 5%);color:inherit;text-decoration:none}.action-icon{display:grid;width:42px;height:42px;place-items:center;border-radius:13px;font-size:20px;font-weight:800}.terminal-action{background:#ffecee;color:#de4453}.routes-action{background:#e8f2ff;color:#246edb}.action-card strong,.action-card small{display:block}.action-card strong{color:#193a67;font-size:12px}.action-card small{margin-top:4px;color:#7990b1;font-size:10px}.action-card b{color:#2d71d9;font-size:19px}.bottom-navigation{position:fixed;z-index:30;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(4,1fr);max-width:520px;margin:auto;padding:7px 8px calc(7px + env(safe-area-inset-bottom));border-top:1px solid #dfebfa;background:rgb(255 255 255 / 96%);box-shadow:0 -6px 20px rgb(15 61 123 / 7%);backdrop-filter:blur(14px)}.bottom-navigation a{display:grid;place-items:center;gap:3px;min-height:46px;border-radius:12px;color:#8397b4;font-size:9px;font-weight:700;text-decoration:none}.bottom-navigation a span{font-size:18px;line-height:1}.bottom-navigation a.active{color:#1763d1;background:#e9f2ff}
+.dashboard-map-shell{position:relative;min-height:245px;overflow:hidden;border:1px solid #d5e6ef;border-radius:21px;background:#e9f4ec;box-shadow:0 6px 20px rgb(10 66 97 / 8%)}.dashboard-map{height:245px;min-height:245px;isolation:isolate}.dashboard-map .leaflet-control-attribution{font-size:8px}.dashboard-map-status{position:absolute;z-index:500;right:10px;bottom:8px;max-width:calc(100% - 20px);margin:0;padding:4px 7px;border-radius:7px;background:rgb(255 255 255 / 90%);color:#486685;font-size:8px;line-height:1.3;box-shadow:0 2px 7px rgb(28 65 94 / 12%)}.dashboard-map-status:empty{display:none}
+.dashboard-side-cards{display:grid;gap:14px}.dashboard-info-card{padding:18px;border:1px solid #dce9fa;border-radius:20px;background:#fff;box-shadow:0 8px 24px rgb(20 71 138 / 7%)}.dashboard-card-heading,.availability-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:11px;border-bottom:1px solid #e0ebf8}.dashboard-card-heading h2,.availability-heading h2{margin:0;color:#102b54;font:800 17px/1.2 "Plus Jakarta Sans",sans-serif;letter-spacing:-.04em}.dashboard-card-heading>span{display:grid;width:19px;height:19px;place-items:center;border:2px solid #6c83a4;border-radius:50%;color:#557293;font:800 12px/1 Arial}.legend-detail{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid #e0ebf8}.legend-detail>i{flex:0 0 auto}.legend-detail div{display:grid;gap:2px}.legend-detail strong{color:#18345d;font-size:12px}.legend-detail small{color:#7286a5;font-size:10px}.legend-detail .legend-terminal{width:15px;height:15px;margin:0;box-shadow:0 0 0 5px #ffedef}.legend-detail .legend-location{width:15px;height:15px;margin:0;box-shadow:0 0 0 4px #e3efff}.key-jeep{display:inline-flex;width:39px;color:#11a84a;line-height:1}.jeepney-icon{display:block;width:100%;height:auto}.key-high{color:#11a84a}.key-medium{color:#e4ad16}.key-low{color:#d9484d}.availability-scale{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:13px 0;border-bottom:1px solid #e0ebf8;text-align:center}.availability-scale span{display:grid;justify-items:center;gap:3px}.availability-scale .key-jeep{width:38px}.availability-scale b{color:#243e66;font-size:9px}.availability-scale small{color:#7185a3;font-size:8px}.availability-heading{justify-content:flex-start;gap:10px}.availability-heading>span{display:grid;width:31px;place-items:center;color:#1667da}.route-availability-list{display:grid}.route-availability-list>p{margin:14px 0 3px;color:#7185a3;font-size:11px}.route-availability-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto 14px;align-items:center;gap:9px;padding:13px 0;border-bottom:1px solid #e0ebf8;color:inherit;text-decoration:none}.route-availability-item:last-child{border-bottom:0;padding-bottom:1px}.route-number{padding:5px 7px;border-radius:8px;background:#1768da;color:#fff;font-size:9px;font-weight:800;white-space:nowrap}.route-number-2{background:#8554d7}.route-number-3{background:#10a54a}.route-number-4{background:#db7622}.route-availability-item strong{overflow:hidden;color:#17335b;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.availability-count{display:inline-flex;align-items:center;gap:5px;padding:5px 7px;border-radius:99px;font-size:9px;font-weight:800;white-space:nowrap}.availability-count .jeepney-icon{width:18px;flex:0 0 auto}.availability-high{background:#dcf8e7;color:#148547}.availability-medium{background:#fff4d6;color:#9c6500}.availability-low{background:#ffeaeb;color:#c43842}.route-availability-item>b{color:#517196;font-size:24px;font-weight:400;line-height:1}
+@media (min-width:760px){.passenger-dashboard-page .app-content{max-width:none;margin:0;box-shadow:none}.commuter-mobile-header{padding-right:clamp(32px,6vw,96px);padding-left:clamp(32px,6vw,96px)}.passenger-dashboard-page .site-main{max-width:1240px;padding:34px clamp(32px,6vw,96px) 42px}.commuter-dashboard{grid-template-columns:minmax(0,1.25fr) minmax(350px,.75fr);gap:24px}.commuter-hero{min-height:276px;padding:36px 38px;border-radius:28px}.commuter-hero h1{font-size:42px}.commuter-hero p{font-size:14px;max-width:370px}.hero-jeepney img{width:280px;right:-18px;bottom:15px}.live-overview{padding:18px;border:1px solid #e0ebfb;border-radius:24px;background:#fff;box-shadow:0 8px 24px rgb(20 71 138 / 6%)}.stat-grid{grid-template-columns:1fr;gap:10px}.stat-card{display:grid;grid-template-columns:28px 70px 1fr;align-items:center;gap:8px;padding:13px}.stat-card>span{margin:0}.stat-card strong{grid-column:2}.stat-card b{grid-column:3;grid-row:1;margin:0;min-height:0}.stat-card small{grid-column:3;grid-row:2;margin:0}.live-map-section,.quick-actions{grid-column:1 / -1}.dashboard-map{height:390px}.map-legend{grid-template-columns:repeat(3,max-content);justify-content:center;gap:26px;padding:13px}.quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.bottom-navigation{display:none}}@media (max-width:360px){.passenger-dashboard-page .site-main{padding-right:12px;padding-left:12px}.commuter-hero{grid-template-columns:minmax(0,1fr) 105px;padding-left:17px}.commuter-hero h1{font-size:24px}.hero-jeepney img{width:150px}.stat-card{padding:11px 8px}.map-legend{font-size:7px;gap:5px}}
+
+/* Keep the dashboard inside the same authenticated shell used by Map, Terminals, and Settings. */
+.passenger-dashboard-page .top-header { min-height:72px; }
+.passenger-dashboard-page .site-main { max-width:1400px; margin:0 auto; padding:32px 32px 64px; }
+.passenger-dashboard-page .commuter-dashboard { gap:24px; }
+.passenger-dashboard-page .live-overview,
+.passenger-dashboard-page .live-map-section,
+.passenger-dashboard-page .quick-actions { min-width:0; }
+.passenger-dashboard-page .live-map-section { align-content:start; gap:8px; }
+.passenger-dashboard-page .action-card { border-radius:var(--radius-xl, 18px); }
+@media (hover:hover) {
+  .passenger-dashboard-page .stat-card { cursor:default; transition:background .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease; }
+  .passenger-dashboard-page .stat-card:hover { border-color:#2e76e8; background:linear-gradient(150deg,#135bc7,#2d82ec); box-shadow:0 10px 22px rgb(28 93 193 / 22%); color:#fff; }
+  .passenger-dashboard-page .stat-card:hover > span { color:#bfe4ff; }
+  .passenger-dashboard-page .stat-card:hover b { color:#e4f2ff; }
+  .passenger-dashboard-page .stat-card:hover small { color:#c8e5ff; }
 }
-@media (max-width: 540px) {
-  .passenger-dashboard-page .dashboard-heading.journey-banner { display: block; min-height: 0; padding: 24px 24px 18px; border-radius: 20px; }
-  .passenger-dashboard-page .journey-banner h2 { font-size: 30px; }
-  .journey-banner-copy p { font-size: 13px; }
-  .journey-banner-scene { height: 76px; min-height: 0; margin-top: 12px; }
-  .journey-banner-road { width: 260px; height: 170px; top: -77px; right: -45px; }
-  .journey-banner-jeepney { width: 140px; bottom: 0; right: 0; }
+.stat-card > .stat-card-icon { display:grid; place-items:center; width:20px; height:20px; }
+.stat-card > .stat-card-icon svg { width:20px; height:20px; }
+@media (min-width:769px) {
+  .passenger-dashboard-page .site-main { max-width:1400px; padding:32px; }
+  .passenger-dashboard-page .commuter-dashboard { grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr); }
+  .passenger-dashboard-page .commuter-hero,
+  .passenger-dashboard-page .live-overview { border-radius:var(--radius-xl, 24px); }
 }
-@media (min-width: 769px) and (max-width: 1100px) {
-  .passenger-dashboard-page .sidebar { width: 248px; }
-  .passenger-dashboard-page .app-content { margin-left: 248px; }
-  .passenger-dashboard-page .sidebar-header { padding: 20px 16px; }
-  .passenger-dashboard-page .sidebar-brand-name { font-size: 12px; }
-  .passenger-dashboard-page .site-main { padding: 24px; }
-  .passenger-dashboard-page .passenger-cards { grid-template-columns: 1fr; }
+@media (max-width:768px) {
+  .passenger-dashboard-page .site-main { max-width:520px; padding:24px 16px 48px; }
+  .passenger-dashboard-page .commuter-dashboard { gap:18px; }
 }
-@media (max-width: 768px) {
-  .passenger-dashboard-page .top-header { min-height: 72px; }
-  .passenger-dashboard-page .site-main { padding: 24px 16px; }
-  .passenger-dashboard-page .dashboard-heading { padding: 28px 24px; }
-  .passenger-dashboard-page .passenger-welcome { padding: 24px; }
-  .passenger-dashboard-page .passenger-cards { grid-template-columns: 1fr; }
+
+/* On desktop the live system map occupies the left column, leaving the right column ready for an additional dashboard card. */
+@media (min-width:769px) {
+  .passenger-dashboard-page .live-map-section { grid-column:1; }
+  .passenger-dashboard-page .dashboard-side-cards { grid-column:2; }
+  .passenger-dashboard-page .dashboard-map-shell,
+  .passenger-dashboard-page .dashboard-map { min-height:360px; height:360px; }
 }
-@media (max-width: 480px) {
-  .passenger-dashboard-page .top-header { gap: 12px; }
-  .passenger-dashboard-page .mobile-menu-toggle { flex-shrink: 0; }
-  .passenger-profile { gap: 8px; }
-  .passenger-profile-avatar { flex-basis: 32px; width: 32px; height: 32px; }
-  .passenger-profile-name { max-width: 88px; font-size: 12px; }
-  .passenger-profile-role { font-size: 10px; }
+
+@media (max-width:768px) {
+  .passenger-dashboard-page .dashboard-map-shell,
+  .passenger-dashboard-page .dashboard-map { min-height:280px; height:280px; }
 }
+
+/* Terminal rows no longer need the old Route 1 / Route 2 badge. */
+.route-availability-item { grid-template-columns:minmax(0,1fr) auto 14px; cursor:pointer; transition:background .16s ease, color .16s ease; }
+.route-availability-item::after { width:7px; height:7px; border-top:2px solid #47709e; border-right:2px solid #47709e; content:""; transform:rotate(45deg); }
+.route-availability-item:hover,
+.route-availability-item:focus-visible { padding-right:7px; padding-left:7px; border-radius:10px; background:#f0f6ff; outline:none; }
+.route-availability-item:focus-visible { box-shadow:0 0 0 3px rgb(37 112 224 / 28%); }
+.route-availability-item strong { display:flex; align-items:center; flex-wrap:wrap; gap:5px; }
+.closest-terminal-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 6px; border-radius:99px; background:#e0f8e9; color:#138248; font-size:8px; font-weight:800; letter-spacing:0; white-space:nowrap; }
+.closest-terminal-badge::before { width:6px; height:6px; border-radius:50%; background:#1ab65f; box-shadow:0 0 0 3px rgb(26 182 95 / 16%); content:""; }
+
+/* The availability legend is described by its label; no duplicate jeepney logo is needed. */
+.legend-detail.availability-key > .key-jeep { display:none; }

@@ -574,7 +574,7 @@ function updateNearestResult() {
     : distance !== null ? `Est. path distance: ${formatDistance(distance)}`
       : routeState.kind === 'error' ? 'Distance unavailable'
         : routeState.kind === 'ready' ? 'Refresh My location for distance' : 'Estimating distance\u2026';
-  nearestStatus.textContent = translate('{label} · {name} · {estimate}', { label, name: record.name, estimate });
+  nearestStatus.textContent = translate('{label}  -  {name}  -  {estimate}', { label, name: record.name, estimate });
 }
 
 async function locateNearestTerminal({ keepPanelOpen = false } = {}) {

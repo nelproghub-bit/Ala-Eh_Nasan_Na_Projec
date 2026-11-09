@@ -213,7 +213,7 @@ page_start('Trip tracking', 'driver-trip');
           </div>
           <div class="driver-trip-detail">
             <span>Started</span>
-            <strong><?= h(date('M j, Y · g:i A', strtotime((string) $activeTrip['started_at']))) ?></strong>
+            <strong><?= h(date('M j, Y  -  g:i A', strtotime((string) $activeTrip['started_at']))) ?></strong>
           </div>
         </div>
         <p class="driver-trip-gps-status" id="gps-status" role="status" aria-live="polite">

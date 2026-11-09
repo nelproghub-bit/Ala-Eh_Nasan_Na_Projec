@@ -69,7 +69,7 @@ page_start('Trip monitoring', 'admin-trips');
         <tr><td data-label="Trip">#<?= h((string) $trip['id']) ?><small>Started <?= h(date('M j, g:i A', strtotime((string) $trip['started_at']))) ?></small></td>
           <td data-label="Driver / vehicle"><strong><?= h((string) $trip['full_name']) ?></strong><small><?= h((string) $trip['plate_number']) ?></small></td>
           <td data-label="Route"><?= h((string) $trip['route_name']) ?></td>
-          <td data-label="Last location"><?= $trip['latitude'] === null ? 'Awaiting GPS' : h((string) $trip['latitude'] . ', ' . (string) $trip['longitude'] . ' · ' . $trip['recorded_at']) ?></td>
+          <td data-label="Last location"><?= $trip['latitude'] === null ? 'Awaiting GPS' : h((string) $trip['latitude'] . ', ' . (string) $trip['longitude'] . '  -  ' . $trip['recorded_at']) ?></td>
           <td data-label="Action"><?php if (($admin['role'] ?? '') !== 'viewer'): ?><form method="post" action="admin-trips.php" onsubmit="return confirm('Cancel this active trip?');"><?= csrf_field() ?><input type="hidden" name="trip_id" value="<?= h((string) $trip['id']) ?>"><button class="button button-reject" name="action" value="cancel_trip">Cancel trip</button></form><?php else: ?>View only<?php endif; ?></td></tr>
       <?php endforeach; ?>
       <?php if ($activeTrips === []): ?><tr><td colspan="5">No active trips.</td></tr><?php endif; ?>
@@ -83,7 +83,7 @@ page_start('Trip monitoring', 'admin-trips');
           <td data-label="Driver / jeepney"><?= h((string) $trip['full_name']) ?><small><?= h((string) $trip['plate_number']) ?></small></td>
           <td data-label="Route"><?= h((string) $trip['route_name']) ?></td>
           <td data-label="Status"><?= h(ucfirst((string) $trip['trip_status'])) ?></td>
-          <td data-label="Duration / location points"><?= $trip['ended_at'] === null ? 'Ongoing' : h((string) $trip['ended_at']) ?> · <?= h((string) $trip['location_updates']) ?> points<?php if ((int) $trip['location_updates'] > 0): ?><small><a href="admin-trip-history.php?id=<?= h((string) $trip['id']) ?>">View GPS trail</a></small><?php endif; ?></td></tr>
+          <td data-label="Duration / location points"><?= $trip['ended_at'] === null ? 'Ongoing' : h((string) $trip['ended_at']) ?>  -  <?= h((string) $trip['location_updates']) ?> points<?php if ((int) $trip['location_updates'] > 0): ?><small><a href="admin-trip-history.php?id=<?= h((string) $trip['id']) ?>">View GPS trail</a></small><?php endif; ?></td></tr>
       <?php endforeach; ?>
       <?php if ($history === []): ?><tr><td colspan="5">No trip history yet.</td></tr><?php endif; ?>
     </tbody></table></div>
@@ -253,12 +253,12 @@ page_start('Trip monitoring', 'admin-trips');
           row.appendChild(cell);
           return cell;
         };
-        addCell('Trip', `#${point.trip_id} · Started ${point.started_at}`);
-        addCell('Driver / vehicle', `${point.full_name} · ${point.plate_number ?? 'No plate'}`);
+        addCell('Trip', `#${point.trip_id}  -  Started ${point.started_at}`);
+        addCell('Driver / vehicle', `${point.full_name}  -  ${point.plate_number ?? 'No plate'}`);
         addCell('Route', point.route_name);
         addCell('Last location', point.latitude === null
           ? 'Awaiting GPS'
-          : `${point.latitude}, ${point.longitude} · ${point.recorded_at}`);
+          : `${point.latitude}, ${point.longitude}  -  ${point.recorded_at}`);
         const actionCell = addCell('Action', '');
         if (canCancelTrips) {
           const form = document.createElement('form');
@@ -318,9 +318,9 @@ page_start('Trip monitoring', 'admin-trips');
       }
       fitInitialBounds();
       status.textContent = valid.length
-        ? `${valid.length} jeepney location${valid.length === 1 ? '' : 's'} · Refreshes every ${refreshSeconds}s · Updated ${new Date().toLocaleTimeString()}`
+        ? `${valid.length} jeepney location${valid.length === 1 ? '' : 's'}  -  Refreshes every ${refreshSeconds}s  -  Updated ${new Date().toLocaleTimeString()}`
         : locations.length
-          ? `${locations.length} active trip${locations.length === 1 ? '' : 's'} · No GPS positions within the Batangas map area.`
+          ? `${locations.length} active trip${locations.length === 1 ? '' : 's'}  -  No GPS positions within the Batangas map area.`
           : `No active trip is sharing a GPS position. Map refreshes every ${refreshSeconds} seconds.`;
     } catch (error) {
       status.textContent = error instanceof Error ? error.message : 'Location updates are unavailable.';

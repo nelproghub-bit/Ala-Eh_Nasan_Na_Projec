@@ -197,7 +197,7 @@ page_start('Driver management', 'admin-drivers');
                     <div>
                       <span class="eyebrow"><span class="eyebrow-dot"></span> DRIVER ACCOUNT</span>
                       <h2 id="manage-driver-title-<?= h((string) $driver['id']) ?>">Manage <?= h((string) $driver['full_name']) ?></h2>
-                      <p><?= h((string) $driver['email']) ?> · <?= h((string) $driver['phone']) ?></p>
+                      <p><?= h((string) $driver['email']) ?>  -  <?= h((string) $driver['phone']) ?></p>
                     </div>
                     <button class="admin-manage-dialog-close" type="button"
                             data-close-driver-dialog aria-label="Close driver management dialog">×</button>

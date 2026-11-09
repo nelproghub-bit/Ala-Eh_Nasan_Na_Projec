@@ -15,12 +15,8 @@ function card(record) {
   icon.append(locationIcon());
   const title = element('h4', '', record.name);
   const mapUrl = `user-map.html?terminal=${encodeURIComponent(record.id)}&focus=terminal`;
-  const titleLink = element('a', '', record.name);
-  titleLink.href = mapUrl;
-  titleLink.setAttribute('aria-label', translate('Show {name} on the map', { name: record.name }));
-  title.replaceChildren(titleLink);
   const address = element('p', 'terminal-address', record.address);
-  const link = element('a', 'terminal-details-link', `${translate('View Details')} →`);
+  const link = element('a', 'terminal-details-link', translate('View Details'));
   link.href = detailsUrl(record.id);
   link.setAttribute('aria-label', translate('View details for {name}', { name: record.name }));
   const mapLink = element('a', 'terminal-map-link', translate('View on Map'));
@@ -34,10 +30,6 @@ function card(record) {
     actions.append(google);
   }
   article.append(icon, element('span', 'municipality-badge', record.municipality), title, address, boardingRouteSummary(record), actions);
-  article.classList.add('terminal-card-selectable');
-  article.addEventListener('click', event => {
-    if (!event.target.closest('a, button')) window.location.assign(mapUrl);
-  });
   return article;
 }
 

@@ -34,7 +34,7 @@ $locations = $locationsQuery->fetchAll();
 page_start('Trip GPS history', 'admin-trip-history');
 ?>
 <section class="admin-dashboard">
-  <div class="admin-page-heading"><div><span class="eyebrow"><span class="eyebrow-dot"></span> TRIP HISTORY</span><h1>Trip #<?= h((string) $trip['id']) ?></h1><p><?= h((string) $trip['full_name']) ?> · <?= h((string) ($trip['plate_number'] ?? 'No plate')) ?> · <?= h((string) $trip['route_name']) ?> · <?= h(ucfirst((string) $trip['trip_status'])) ?></p><p><?= h((string) $trip['started_at']) ?><?= $trip['ended_at'] === null ? '' : ' — ' . h((string) $trip['ended_at']) ?></p></div><a class="admin-access-badge" href="admin-trips.php">← Back to trips</a></div>
+  <div class="admin-page-heading"><div><span class="eyebrow"><span class="eyebrow-dot"></span> TRIP HISTORY</span><h1>Trip #<?= h((string) $trip['id']) ?></h1><p><?= h((string) $trip['full_name']) ?>  -  <?= h((string) ($trip['plate_number'] ?? 'No plate')) ?>  -  <?= h((string) $trip['route_name']) ?>  -  <?= h(ucfirst((string) $trip['trip_status'])) ?></p><p><?= h((string) $trip['started_at']) ?><?= $trip['ended_at'] === null ? '' : ' — ' . h((string) $trip['ended_at']) ?></p></div><a class="admin-access-badge" href="admin-trips.php">← Back to trips</a></div>
   <section class="admin-queue">
     <div class="admin-queue-heading"><div><h2>Recorded GPS trail</h2><p><?= h((string) count($locations)) ?> of up to 5,000 chronological location points. GPS accuracy varies by device. Map navigation is limited to the Batangas area.</p></div></div>
     <?php if ($locations === []): ?><div class="admin-empty"><p>No location samples were recorded for this trip.</p></div><?php else: ?>
@@ -63,9 +63,9 @@ page_start('Trip GPS history', 'admin-trip-history');
   const map = BatangasMap.create('trip-history-map');
   BatangasMap.fitPoints(map, coordinates, {padding: [24, 24]});
   L.polyline(coordinates, {color: '#2563eb', weight: 5}).addTo(map);
-  L.marker(coordinates[0]).addTo(map).bindPopup('Trip started · ' + points[0].recorded_at);
+  L.marker(coordinates[0]).addTo(map).bindPopup('Trip started  -  ' + points[0].recorded_at);
   if (coordinates.length > 1) {
-    L.marker(coordinates[coordinates.length - 1]).addTo(map).bindPopup('Latest recorded position · ' + points[points.length - 1].recorded_at);
+    L.marker(coordinates[coordinates.length - 1]).addTo(map).bindPopup('Latest recorded position  -  ' + points[points.length - 1].recorded_at);
   }
 })();
 </script>

@@ -102,9 +102,9 @@ if (in_array($export, ['trips', 'vehicles', 'drivers'], true)) {
             .empty { padding: 18px; color: #64748b; text-align: center; }
             .footer { margin-top: 12px; color: #64748b; font-size: 8px; }
         </style></head><body>
-            <div class="brand">Ala-Eh Nasaan Na? · Administration</div>
+            <div class="brand">Ala-Eh Nasaan Na?  -  Administration</div>
             <h1>' . h($title) . '</h1>
-            <p class="meta">Generated ' . h(date('F j, Y g:i A')) . ' · ' . count($rows) . ' record' . (count($rows) === 1 ? '' : 's') . '</p>
+            <p class="meta">Generated ' . h(date('F j, Y g:i A')) . '  -  ' . count($rows) . ' record' . (count($rows) === 1 ? '' : 's') . '</p>
             ' . $period . '
             <table><thead><tr>' . $tableHeaders . '</tr></thead><tbody>' . $tableRows . '</tbody></table>
             <p class="footer">Confidential administrative report. Handle and share responsibly.</p>
@@ -220,7 +220,7 @@ page_start('Reports and analytics', 'admin-reports');
   <div class="admin-stats">
     <article class="admin-stat"><span class="admin-stat-icon">🚌</span><span class="admin-stat-label">Registered jeepneys</span><strong><?= h((string) $vehicleCounts['registered']) ?></strong><small><?= h((string) $vehicleCounts['active']) ?> operational</small></article>
     <article class="admin-stat"><span class="admin-stat-icon">👤</span><span class="admin-stat-label">Active drivers</span><strong><?= h((string) $driverCounts['active']) ?></strong><small><?= h((string) $driverCounts['verified']) ?> verified</small></article>
-    <article class="admin-stat"><span class="admin-stat-icon">🧭</span><span class="admin-stat-label">Trips in range</span><strong><?= h((string) $tripCounts['total']) ?></strong><small><?= h((string) $tripCounts['completed']) ?> completed · <?= h((string) $tripCounts['cancelled']) ?> cancelled</small></article>
+    <article class="admin-stat"><span class="admin-stat-icon">🧭</span><span class="admin-stat-label">Trips in range</span><strong><?= h((string) $tripCounts['total']) ?></strong><small><?= h((string) $tripCounts['completed']) ?> completed  -  <?= h((string) $tripCounts['cancelled']) ?> cancelled</small></article>
     <article class="admin-stat"><span class="admin-stat-icon">📡</span><span class="admin-stat-label">Ongoing trips</span><strong><?= h((string) $tripCounts['active']) ?></strong><small>Within selected range</small></article>
   </div>
   <section class="admin-queue">

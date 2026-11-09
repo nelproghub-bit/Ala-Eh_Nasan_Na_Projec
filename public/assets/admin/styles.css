@@ -1591,6 +1591,91 @@ html.dark-mode .password-visibility-toggle {
   .vehicle-form-footer { align-items: flex-start; flex-direction: column; }
 }
 
+/* System-wide responsive safeguards: administration portal. */
+html { min-width: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: clip; }
+img, svg, video, canvas, iframe { max-width: 100%; }
+img, video, canvas { height: auto; }
+button, input, select, textarea { max-width: 100%; font: inherit; }
+input, select, textarea { min-width: 0; }
+.app-content, .site-main, .admin-page, .dashboard-wrap, .admin-form-grid,
+.admin-queue, .admin-table-wrap, .map-editor-layout { min-width: 0; }
+.admin-page-heading, .admin-queue-heading, .admin-table td, .admin-table td::before,
+.app-toast-copy, .profile-photo-dialog { overflow-wrap: anywhere; }
+
+@media (max-width: 768px) {
+  .top-header { min-height: 64px; padding-right: max(16px, env(safe-area-inset-right)); padding-left: max(16px, env(safe-area-inset-left)); }
+  .has-sidebar .site-main { padding-right: max(16px, env(safe-area-inset-right)); padding-left: max(16px, env(safe-area-inset-left)); }
+  .admin-table-wrap, .map-locations-table-wrap, .admin-report-table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .button, .button-small, .admin-actions button { min-height: 44px; }
+}
+
+@media (max-width: 400px) {
+  .has-sidebar .site-main { padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .page-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* Cross-device safeguards for the admin and driver portals. */
+html { min-width: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { max-width: 100%; overflow-x: clip; }
+img, svg, video, canvas, iframe { max-width: 100%; }
+img, video, canvas { height: auto; }
+button, input, select, textarea { max-width: 100%; font: inherit; }
+input, select, textarea { min-width: 0; }
+:is(.app-layout, .app-content, .site-main, .admin-form-grid, .registration-form,
+  .vehicle-form, .driver-settings-grid, .live-route-layout, .map-editor-layout,
+  .admin-queue, .dashboard-panels, .dashboard-dropdown-content) { min-width: 0; }
+:is(.admin-page-heading, .admin-queue, .application-card, .driver-vehicle-link,
+  .route-header-card, .route-summary-section, .profile-photo-card) { overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .admin-stats, .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .live-route-layout, .map-editor-layout { grid-template-columns: minmax(0, 1fr); }
+  .live-route-toolbar, .route-map-actions, .vehicle-form-footer { flex-wrap: wrap; }
+}
+
+@media (max-width: 640px) {
+  .has-sidebar .site-main { padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .admin-stats, .stats-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-form-grid, .form-grid, .registration-form, .vehicle-form,
+  .driver-settings-grid, .map-coordinate-fields, .map-form-grid,
+  .route-summary-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-table-wrap, .map-locations-table-wrap, .admin-report-table-wrap,
+  .route-table-wrap { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .admin-table-wrap table, .map-locations-table-wrap table,
+  .admin-report-table-wrap table, .route-table-wrap table { min-width: 560px; }
+  .dashboard-heading, .admin-page-heading, .route-page-heading,
+  .application-card, .admin-queue-content, .map-editor-form, .map-editor-panel { padding: 16px; }
+  .live-route-toolbar > *, .route-map-actions > *, .vehicle-form-footer > * { flex: 1 1 100%; }
+  .live-route-toolbar .button, .route-map-actions .button, .vehicle-form-footer .button { width: 100%; }
+  #driver-route-map, #live-route-map, #location-editor-map { height: clamp(240px, 58svh, 360px); }
+}
+
+@media (max-width: 380px) {
+  .site-main { width: calc(100% - 24px); }
+  .admin-page-heading, .admin-queue-heading, .application-card,
+  .route-header-card, .route-summary-section, .route-stops-section { padding: 14px; }
+}
+
+/* Small-screen hardening for administration tables, reviews, and settings. */
+@media (max-width: 480px) {
+  .admin-dashboard, .admin-queue, .admin-page-heading, .admin-queue-heading,
+  .admin-form-grid, .admin-settings-grid { min-width: 0; }
+  .admin-page-heading, .admin-queue-heading { padding: 18px 16px; }
+  .admin-stats { grid-template-columns: minmax(0, 1fr); padding: 0 12px; }
+  .admin-stat { min-height: 104px; padding: 16px; }
+  .admin-filters, .admin-actions { width: 100%; }
+  .admin-filters a, .admin-actions .button { flex: 1 1 auto; justify-content: center; }
+  .admin-table-wrap, .admin-report-table-wrap, .map-locations-table-wrap { margin-right: -4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .admin-table th, .admin-table td { white-space: nowrap; }
+  .admin-modal, .admin-dialog { width: calc(100vw - 24px); max-width: 100%; }
+}
+
+@media (max-width: 360px) {
+  .admin-page-heading, .admin-queue-heading, .admin-form-grid { padding: 14px 12px; }
+  .admin-stat strong { font-size: 26px; }
+}
+
 .route-page { 
   max-width: 100%; 
   min-height: 600px; 
@@ -4649,4 +4734,15 @@ html.dark-mode .app-toast-close:focus-visible {
     padding-right: 12px;
     padding-left: 12px;
   }
+}
+
+/* Keep responsive overrides after page-specific rules. */
+@media (max-width: 768px) {
+  .top-header { min-height: 64px; padding-right: max(16px, env(safe-area-inset-right)); padding-left: max(16px, env(safe-area-inset-left)); }
+  .has-sidebar .site-main { padding-right: max(16px, env(safe-area-inset-right)); padding-left: max(16px, env(safe-area-inset-left)); }
+  .admin-table-wrap, .map-locations-table-wrap, .admin-report-table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 400px) {
+  .has-sidebar .site-main { padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .page-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }

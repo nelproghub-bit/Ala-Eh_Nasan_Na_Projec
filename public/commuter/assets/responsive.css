@@ -1,0 +1,56 @@
+/* Shared responsive refinements for every commuter screen. */
+:root { --responsive-gutter: clamp(12px, 3vw, 32px); }
+html { min-width: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { max-width: 100%; overflow-x: clip; }
+img, svg, video, canvas, iframe { max-width: 100%; }
+img, video, canvas { height: auto; }
+button, input, select, textarea { max-width: 100%; font: inherit; }
+input, select, textarea { min-width: 0; }
+:is(.app-layout, .app-content, .site-main, .dashboard-wrap, .commuter-dashboard,
+  .settings-grid, .terminal-grid, .terminal-card, .terminal-information,
+  .map-terminal-panel, .map-panel-body, .route-preview-panel) { min-width: 0; }
+:is(.terminal-card, .settings-panel, .journey-banner-copy, .map-terminal-panel,
+  .route-preview-panel, .passenger-profile-info) { overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .has-sidebar .site-main,
+  .passenger-dashboard-page .site-main { padding-right: var(--responsive-gutter); padding-left: var(--responsive-gutter); }
+  .terminal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .terminal-card { padding: clamp(18px, 3vw, 24px); }
+  .settings-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .top-header { min-height: 56px; padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .has-sidebar .site-main,
+  .passenger-dashboard-page .site-main { padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .terminal-grid, .terminal-facts { grid-template-columns: 1fr; }
+  .terminal-filters { grid-template-columns: minmax(0, 1fr); }
+  .terminal-card-actions, .terminal-actions { align-items: stretch; flex-direction: column; }
+  .terminal-card-actions > *, .terminal-actions > * { width: 100%; }
+  .terminal-map { height: clamp(230px, 56vw, 300px); }
+  .active-drivers-list .boarding-driver { grid-template-columns: 1fr; gap: 12px; }
+  .active-driver-details { grid-template-columns: minmax(0, 1fr); }
+  .active-driver-details > * { grid-column: 1 !important; grid-row: auto !important; }
+  .active-driver-route { white-space: normal; }
+  .settings-panel { padding: 20px; }
+  .settings-footer, .settings-actions { align-items: stretch; width: 100%; }
+  .settings-actions button { flex: 1 1 140px; }
+  .map-terminal-panel { right: 12px; left: 12px; width: auto; max-width: none; max-height: min(72dvh, 620px); }
+  .map-floating-controls { right: max(12px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); }
+  .nearest-terminal-status { left: max(12px, env(safe-area-inset-left)); max-width: calc(100% - 84px); }
+  .intro-copy { right: 16px; left: 16px; }
+  .intro-copy h1 { font-size: clamp(28px, 8vw, 38px); }
+}
+
+@media (max-width: 380px) {
+  .terminal-card, .terminal-information, .terminal-map-section, .terminal-detail-heading,
+  .settings-panel { padding: 16px; }
+  .terminal-card-actions, .terminal-actions { gap: 8px; }
+  .map-panel-body { padding: 12px; }
+  .settings-actions button { width: 100%; flex-basis: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

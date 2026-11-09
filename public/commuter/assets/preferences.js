@@ -48,7 +48,9 @@
       if (!response.ok) return;
       const result = await response.json();
       const accountName = cleanName(result.account?.full_name);
-      if (accountName && !settings.name) savePreferences({ name: accountName });
+      // The account name is the source of truth: it is the name supplied at
+      // registration (or deliberately updated later in Profile settings).
+      if (accountName && accountName !== settings.name) savePreferences({ name: accountName });
     } catch { /* user.js handles access/session errors */ }
   }
   window.PassengerUI = { t, getPreferences: () => ({ ...settings }), savePreferences, updateAccountName, syncAccountName };

@@ -272,7 +272,7 @@ HTML;
 <html lang="{$language}" data-theme="{$theme}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{$safeTitle} | Ala-Eh Nasaan Na? Jeepney Locator</title>
   <meta name="theme-color" content="#f5f8ff">
   <link rel="icon" type="image/png" href="assets/ala-eh-logo.png">
@@ -373,11 +373,6 @@ HTML;
       <img class="brand-mark" src="assets/ala-eh-logo.png" alt="" aria-hidden="true">
       <span class="brand-name">Ala-Eh Nasaan Na?<span>Jeepney Locator</span></span>
     </a>
-    <nav class="site-nav" aria-label="Main navigation">
-      <a href="index.php">Home</a>
-      <a href="login.php">Log in</a>
-      <a class="button button-primary button-small" href="register.php">Get started <span aria-hidden="true"><svg class="ui-icon" aria-hidden="true" focusable="false" width="24" height="24"><use href="assets/icons.svg#arrow"></use></svg></span></a>
-    </nav>
   </div>
 </header>
 <main class="site-main" id="main-content">

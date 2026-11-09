@@ -12,7 +12,7 @@
     if (file && (!/\.(pdf|jpe?g|png)$/i.test(file.name) || (file.type && !['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)))) error = 'Choose a PDF, JPG or PNG file.';
     else if (file && (!file.size || file.size > 8 * 1024 * 1024)) error = 'Choose a non-empty file up to 8 MB.';
     input.setCustomValidity(error);
-    status.textContent = error || (file ? file.name + ' · ' + (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'No file selected');
+    status.textContent = error || (file ? file.name + '  -  ' + (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'No file selected');
     status.classList.toggle('invalid', Boolean(error));
     return !error;
   }

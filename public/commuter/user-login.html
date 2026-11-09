@@ -9,16 +9,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/styles.css?v=20261109-responsive">
   <link rel="stylesheet" href="assets/user.css">
-  <link rel="stylesheet" href="assets/login-intro.css?v=8">
-  <script src="assets/user.js?v=12-presence" defer></script>
+  <link rel="stylesheet" href="assets/login-intro.css?v=9-larger-header">
+  <script src="assets/user.js?v=15-account-name" defer></script>
   <script src="assets/login-intro.js?v=3" defer onerror="document.documentElement.classList.remove('login-intro-pending')"></script>
+  <link rel="stylesheet" href="assets/responsive.css?v=1">
 </head>
 <body class="passenger-page passenger-login-page">
   <section class="login-intro" id="login-intro" aria-labelledby="login-intro-title" hidden>
     <div class="intro-brand"><img src="assets/ala-eh-logo.png" alt="" width="48" height="48"><div><strong>Ala-Eh Nasaan Na?</strong><span>Jeepney Locator</span></div></div>
-    <div class="intro-copy"><span>Your everyday journey</span><h1 id="login-intro-title" tabindex="-1">Your next ride starts here.</h1><p id="login-intro-instructions">Tap the jeepney to start your journey.</p></div>
+    <div class="intro-copy"><span>Ano ga? Byahe na!</span><h1 id="login-intro-title" tabindex="-1">Ang susunod mong sakay, mas pinadali na!</h1><p id="login-intro-instructions">I-tap ang jeepney para umpisahan ang biyahe.</p></div>
     <div class="intro-streetscape" aria-hidden="true">
       <div class="intro-town-buildings"></div>
       <span class="intro-walker intro-walker-one"><svg viewBox="0 0 28 50" fill="none"><ellipse cx="14" cy="48" rx="10" ry="1.5" fill="#8da4bb" opacity=".18"/><path class="walker-leg walker-leg-back" d="m14 30 4 10 5 6"/><path class="walker-arm walker-arm-back" d="m14 18 7 9 3 1"/><path d="m10 17 8-1 3 16H9l1-15Z" fill="currentColor"/><path class="walker-leg walker-leg-front" d="m13 30-2 10-5 7"/><path class="walker-arm walker-arm-front" d="m11 18-4 9-3 2"/><path d="M12 14v4h5v-5" fill="#bf947b"/><circle cx="14" cy="8" r="6" fill="#d5ae91"/><path d="M8 8c-1-9 13-10 12-1l-5-1-2-2-1 4H8Z" fill="#46566b"/></svg></span>
@@ -74,13 +75,13 @@
       <div class="auth-panel">
         <div class="form-heading"><span class="form-kicker">PASSENGER PORTAL</span><h2 id="login-title" tabindex="-1">Welcome back.</h2><p>Sign in and get ready for your next journey.</p></div>
         <p class="message message-error" id="login-error" role="alert" hidden></p>
-        <form class="form-stack" id="passenger-login" aria-describedby="demo-description">
-          <label for="email">Email address<input id="email" type="email" required autocomplete="username" placeholder="you@example.com"></label>
-          <div class="passenger-password-field"><label for="password">Password</label><div class="passenger-password"><input id="password" type="password" required autocomplete="current-password" placeholder="Enter your password"><button type="button" id="toggle-password" aria-controls="password" aria-pressed="false">Show</button></div></div>
+        <form class="form-stack" id="passenger-login" method="post" action="api/auth.php?action=login" autocomplete="on" aria-describedby="demo-description">
+          <label for="email">Email address<input id="email" name="email" type="email" required autocomplete="username" placeholder="you@example.com"></label>
+          <div class="passenger-password-field"><label for="password">Password</label><div class="passenger-password"><input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Enter your password"><button type="button" id="toggle-password" aria-controls="password" aria-pressed="false">Show</button></div></div>
           <button class="button button-primary button-submit" type="submit">Sign in <span aria-hidden="true">&#8594;</span></button>
         </form>
         <p class="auth-switch" id="signup-prompt">New here? <button type="button" id="open-register">Create account</button></p>
-        <form class="form-stack" id="passenger-register" aria-describedby="registration-note" hidden>
+        <form class="form-stack" id="passenger-register" method="post" action="api/auth.php?action=register" autocomplete="on" aria-describedby="registration-note" hidden>
           <label for="register-name">Full name<input id="register-name" name="name" autocomplete="name" required maxlength="100" placeholder="Enter your full name"></label>
           <label for="register-email">Email address<input id="register-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
           <label for="register-password">Password<input id="register-password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters"></label>
@@ -90,15 +91,7 @@
         <p class="auth-switch" id="signin-prompt" hidden>Already have an account? <button type="button" id="open-login">Sign in</button></p>
         <p class="form-security" id="registration-note" hidden>Create a commuter account using your own email and password.</p>
         <p class="form-security" id="registration-result" role="status" hidden></p>
-        <form class="form-stack" id="driver-login" aria-describedby="driver-note" hidden>
-          <label for="driver-email">Email address<input id="driver-email" name="email" type="email" autocomplete="username" required placeholder="driver@example.com"></label>
-          <label for="driver-password">Password<input id="driver-password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password"></label>
-          <button class="button button-primary button-submit" type="submit">Driver sign in <span aria-hidden="true">&#8594;</span></button>
-        </form>
-        <p class="auth-switch" id="passenger-prompt" hidden>Riding as a passenger? <button type="button" id="back-to-passenger">Passenger sign in</button></p>
-        <p class="form-security" id="driver-note" hidden>Driver sign-in preview. Use sample details only.</p>
-        <p class="form-security" id="driver-result" role="status" hidden></p>
-        <noscript><p class="message message-error">Enable JavaScript to use this interface preview.</p></noscript>
+        <noscript><p class="message message-error">Enable JavaScript to sign in or create an account.</p></noscript>
         <p class="form-security" id="demo-description">Sign in with your registered commuter or administrator account.</p>
       </div>
     </section>

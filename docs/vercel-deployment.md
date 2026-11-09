@@ -54,8 +54,8 @@ After deployment, check the home page and the public terminal API. Then verify p
 
 ## Browser deceptive-site warning
 
-If Safari, Chrome, or another browser displays a deceptive-site warning before the sign-in page loads, the warning is a reputation decision for the deployed hostname. It is not a response produced by the PHP login endpoint, so changing a password or bypassing the warning is not a solution.
+If Safari, Chrome, Brave, or another browser displays a deceptive-site warning before the sign-in page loads, the warning is a browser security classification of the URL/site or its content. It is not a response produced by the PHP login endpoint. Follow [the investigation and deployment checks](browser-security-warning.md) to inspect the affected deployment and request review after remediation.
 
-Before requesting a review, deploy the current code and inspect the production deployment for unexpected redirects, injected scripts, downloads, or pages outside the intended public routes. Keep the Vercel project and Git account protected with MFA, rotate any credential that may have been exposed, and remove any unused deployments or domains. Use a verified custom domain for the public application instead of distributing a temporary `vercel.app` deployment URL.
+Before requesting a review, deploy the current code and inspect the production deployment for unexpected redirects, injected scripts, downloads, or pages outside the intended public routes. Keep the Vercel project and Git account protected with MFA and rotate any credential that may have been exposed. A custom domain can provide a stable public address, but changing domains does not establish safety or resolve a flagged deployment's underlying problem.
 
 Then submit the exact affected production URL for a Google Safe Browsing review and open a Vercel support ticket if the hostname remains flagged. Include the deployment URL, confirmation that the site is the official Ala-Eh Nasaan Na? Jeepney Locator, and the remediation summary. Do not ask users to continue through the browser warning; wait for the review to clear it.

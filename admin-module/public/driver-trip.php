@@ -194,7 +194,7 @@ page_start('Trip tracking', 'driver-trip');
       <?php if (!$driverVerified): ?>
         <p>Driver verification is required before starting a trip.</p>
       <?php elseif ($activeTrip !== false): ?>
-        <p><strong><?= h((string) $activeTrip['route_name']) ?></strong> · Jeepney <?= h((string) ($activeTrip['plate_number'] ?? 'plate pending')) ?> · Started <?= h(date('M j, Y g:i A', strtotime((string) $activeTrip['started_at']))) ?></p>
+        <p><strong><?= h((string) $activeTrip['route_name']) ?></strong>  -  Jeepney <?= h((string) ($activeTrip['plate_number'] ?? 'plate pending')) ?>  -  Started <?= h(date('M j, Y g:i A', strtotime((string) $activeTrip['started_at']))) ?></p>
         <p id="gps-status" role="status" aria-live="polite">Requesting browser location permission…</p>
         <form method="post" action="driver-trip.php">
           <?= csrf_field() ?>

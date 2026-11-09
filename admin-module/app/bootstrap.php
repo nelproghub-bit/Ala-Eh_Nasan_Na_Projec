@@ -383,7 +383,7 @@ function page_start(string $title, string $page = ''): void
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{$safeTitle} | Ala-Eh Nasaan Na? Jeepney Locator</title>
   <meta name="theme-color" content="#f5f8ff">
   <link rel="icon" type="image/png" href="assets/ala-eh-logo.png">
@@ -391,7 +391,7 @@ function page_start(string $title, string $page = ''): void
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261106-terminal-gps">
+  <link rel="stylesheet" href="assets/styles.css?v=20261109-responsive">
   <script src="assets/password-toggle.js" defer></script>
   <script>
     try {
@@ -599,7 +599,7 @@ HTML;
     </div>
     <div class="profile-photo-upload-copy">
       <strong>Choose a clear, recognizable photo</strong>
-      <span>JPEG, PNG, or WebP · up to 5 MB · maximum 16 megapixels</span>
+      <span>JPEG, PNG, or WebP  -  up to 5 MB  -  maximum 16 megapixels</span>
     </div>
     <input class="profile-photo-file-input" id="profile-photo-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
     <label class="profile-photo-file-label" for="profile-photo-file">Select a photo</label>

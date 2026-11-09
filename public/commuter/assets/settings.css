@@ -24,5 +24,9 @@
 .settings-actions button[type="submit"]:hover { background: #1d4ed8; }
 .settings-actions button:focus-visible { outline: 2px solid var(--blue-400); outline-offset: 3px; }
 .settings-status { margin-top: 16px; color: var(--blue-700); font-size: 13px; font-weight: 600; }
+.settings-logout { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 10px 14px; border: 1px solid #fecaca; border-radius: var(--radius-md); background: #fff; color: #b91c1c; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.settings-logout .dashboard-icon { width: 18px; height: 18px; flex: 0 0 18px; }
+.settings-logout:hover { background: #fef2f2; border-color: #fca5a5; }
+.settings-logout:focus-visible { outline: 2px solid #f87171; outline-offset: 3px; }
 @media (max-width: 800px) { .settings-grid { grid-template-columns: 1fr; } .settings-panel > p { min-height: 0; } }
 @media (max-width: 480px) { .settings-panel { padding: 20px; } .settings-actions { width: 100%; } .settings-actions button { flex: 1; } }

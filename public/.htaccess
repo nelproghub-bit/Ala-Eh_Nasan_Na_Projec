@@ -1,0 +1,29 @@
+# Apache/shared-hosting equivalent of the container's public security headers.
+Options -Indexes
+
+<FilesMatch "(?i)^(?:\..*|.*\.(?:sql|sqlite(?:3)?|bak|old|orig|log|ini|pem|key))$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), geolocation=(self), microphone=(), payment=()"
+    Header always set Cross-Origin-Opener-Policy "same-origin"
+    Header always set Cross-Origin-Resource-Policy "same-origin"
+    Header always set X-Permitted-Cross-Domain-Policies "none"
+    # No upgrade-insecure-requests here: local XAMPP uses HTTP. Production must
+    # enforce HTTPS at the hosting layer; do not trust client-supplied proxies.
+    Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; connect-src 'self' https://photon.komoot.io https://router.project-osrm.org https://routing.openstreetmap.de; font-src 'self' https://fonts.gstatic.com; form-action 'self'; frame-ancestors 'none'; frame-src 'none'; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; object-src 'none'; script-src 'self' 'unsafe-inline' https://unpkg.com/leaflet@1.9.4/dist/leaflet.js; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    <FilesMatch "^user-.*\.html$">
+        Header always set Cache-Control "no-store, private"
+        Header always set Pragma "no-cache"
+    </FilesMatch>
+</IfModule>

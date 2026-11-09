@@ -97,3 +97,6 @@
   .passenger-profile-name { max-width: 88px; font-size: 12px; }
   .passenger-profile-role { font-size: 10px; }
 }
+
+/* The availability legend is described by its label; no duplicate jeepney logo is needed. */
+.legend-detail.availability-key > .key-jeep { display:none; }

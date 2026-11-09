@@ -393,7 +393,7 @@ page_start('Terminals and routes', 'admin-routes');
     <?php endif; ?>
     <?php foreach ($routes as $route): ?>
       <article class="admin-route-card" id="route-<?= h((string) $route['id']) ?>">
-        <div class="admin-queue-heading"><div><h3><?= h((string) $route['route_name']) ?></h3><p><?= h((string) ($route['terminals'] ?? 'No terminal endpoints')) ?> · <?= (int) $route['is_active'] === 1 ? 'Active' : 'Inactive' ?></p></div></div>
+        <div class="admin-queue-heading"><div><h3><?= h((string) $route['route_name']) ?></h3><p><?= h((string) ($route['terminals'] ?? 'No terminal endpoints')) ?>  -  <?= (int) $route['is_active'] === 1 ? 'Active' : 'Inactive' ?></p></div></div>
         <?php if (count($activeTerminals) >= 2): ?>
         <details><summary>Edit route endpoints</summary><form method="post" class="admin-form-grid" action="admin-routes.php#route-<?= h((string) $route['id']) ?>">
           <?= csrf_field() ?><input type="hidden" name="action" value="save_route"><input type="hidden" name="route_id" value="<?= h((string) $route['id']) ?>">
@@ -407,7 +407,7 @@ page_start('Terminals and routes', 'admin-routes');
         <h4>Ordered pickup and drop-off points</h4>
         <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>#</th><th>Stop</th><th>Area / landmark</th><th>Actions</th></tr></thead><tbody>
           <?php foreach ($stopsByRoute[(int) $route['id']] ?? [] as $stop): ?>
-            <tr><td data-label="Sequence"><?= h((string) $stop['stop_sequence']) ?></td><td data-label="Stop"><strong><?= h((string) $stop['location_name']) ?></strong><small><?= h(str_replace('_', ' ', (string) $stop['stop_type'])) ?></small></td><td data-label="Area / landmark"><?= h((string) $stop['area_label'] . ' · ' . (string) $stop['landmark']) ?></td><td data-label="Actions">
+            <tr><td data-label="Sequence"><?= h((string) $stop['stop_sequence']) ?></td><td data-label="Stop"><strong><?= h((string) $stop['location_name']) ?></strong><small><?= h(str_replace('_', ' ', (string) $stop['stop_type'])) ?></small></td><td data-label="Area / landmark"><?= h((string) $stop['area_label'] . '  -  ' . (string) $stop['landmark']) ?></td><td data-label="Actions">
               <button class="button button-outline admin-manage-button" type="button"
                 data-stop-edit="<?= h(json_encode($stop, JSON_THROW_ON_ERROR)) ?>"
                 data-route-name="<?= h((string) $route['route_name']) ?>"
@@ -500,7 +500,7 @@ document.querySelectorAll('[data-stop-edit]').forEach((button) => {
       form.elements.namedItem('route_id').value = stop.route_id;
       form.elements.namedItem('stop_id').value = stop.id;
     });
-    stopEditDescription.textContent = stop.location_name + ' · ' + button.dataset.routeName;
+    stopEditDescription.textContent = stop.location_name + '  -  ' + button.dataset.routeName;
     stopEditDialog.showModal();
     stopEditForm.elements.namedItem('location_name').focus();
   });

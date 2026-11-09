@@ -210,7 +210,7 @@ page_start('Jeepney management', 'admin-jeepneys');
         <tbody>
         <?php foreach ($vehicles as $vehicle): ?>
           <tr>
-            <td data-label="Vehicle"><strong><?= h((string) ($vehicle['plate_number'] ?? 'Pending plate')) ?></strong><small><?= h((string) $vehicle['capacity']) ?> passengers · <?= h((string) $vehicle['verification_status']) ?></small></td>
+            <td data-label="Vehicle"><strong><?= h((string) ($vehicle['plate_number'] ?? 'Pending plate')) ?></strong><small><?= h((string) $vehicle['capacity']) ?> passengers  -  <?= h((string) $vehicle['verification_status']) ?></small></td>
             <td data-label="Driver"><?= h((string) $vehicle['full_name']) ?></td>
             <td data-label="Route"><?= h((string) ($vehicle['route_assignment'] ?? 'Unassigned')) ?></td>
             <td data-label="Operational state"><?= h((string) $vehicle['operational_status']) ?></td>
@@ -224,11 +224,11 @@ page_start('Jeepney management', 'admin-jeepneys');
                   data-driver-id="<?= h((string) $vehicle['driver_id']) ?>"
                   data-route="<?= h((string) ($vehicle['route_assignment'] ?? '')) ?>"
                   data-status="<?= h((string) $vehicle['operational_status']) ?>"
-                  data-description="<?= h((string) ($vehicle['plate_number'] ?? 'Pending plate') . ' · ' . $vehicle['full_name']) ?>">Edit</button>
+                  data-description="<?= h((string) ($vehicle['plate_number'] ?? 'Pending plate') . '  -  ' . $vehicle['full_name']) ?>">Edit</button>
                 <button class="button button-reject" type="button"
                   data-vehicle-decommission
                   data-vehicle-id="<?= h((string) $vehicle['id']) ?>"
-                  data-description="<?= h((string) ($vehicle['plate_number'] ?? 'Pending plate') . ' · ' . $vehicle['full_name']) ?>">Decommission</button>
+                  data-description="<?= h((string) ($vehicle['plate_number'] ?? 'Pending plate') . '  -  ' . $vehicle['full_name']) ?>">Decommission</button>
               </div>
             </td>
           </tr>

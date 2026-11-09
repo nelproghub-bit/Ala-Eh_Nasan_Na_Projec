@@ -22,7 +22,7 @@
       status.textContent = 'Updates every 5 seconds';
       status.title = `Last updated ${new Date().toLocaleTimeString()}`;
     } catch (_) {
-      status.textContent = 'Update unavailable · retrying';
+      status.textContent = 'Update unavailable  -  retrying';
     } finally {
       clearTimeout(timeout);
       busy = false;

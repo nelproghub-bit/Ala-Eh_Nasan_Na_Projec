@@ -71,7 +71,7 @@
     const fix = { coordinates: [c.longitude, c.latitude], accuracy: c.accuracy, heading: c.heading, speed: c.speed, timestamp: position.timestamp };
     lastFix = fix;
     const current = LiveNavigation.locate(route, fix, progress, hint.value);
-    get('live-gps-quality').textContent = `GPS accuracy: ±${Math.round(c.accuracy)} m · Updated ${new Date(position.timestamp).toLocaleTimeString()}`;
+    get('live-gps-quality').textContent = `GPS accuracy: ±${Math.round(c.accuracy)} m  -  Updated ${new Date(position.timestamp).toLocaleTimeString()}`;
     if (current.state !== 'ready') {
       const messages = {
         invalid: 'The device returned an invalid location. Waiting for another reading.',
@@ -100,7 +100,7 @@
     get('live-current-road').textContent = current.atStop ? `At stop: ${current.atStop.name}` : `Current road: ${current.road}`;
     get('live-next-name').textContent = next?.name || (current.finished ? 'End of mapped route' : 'No more recorded stops ahead');
     get('live-next-distance').textContent = next ? distanceText(next.distance) : '—';
-    get('live-next-description').textContent = next ? `Along your route · ${next.access || 'Mapped stop'}` : 'Select your next service route when you start another trip.';
+    get('live-next-description').textContent = next ? `Along your route  -  ${next.access || 'Mapped stop'}` : 'Select your next service route when you start another trip.';
     get('live-upcoming').replaceChildren();
     current.upcoming.slice(0, 4).forEach((point) => {
       const item = document.createElement('li'); const name = document.createElement('strong'); name.textContent = point.name;

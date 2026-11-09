@@ -55,8 +55,7 @@ export function boardingRouteSummary(record, query = '') {
   for (const route of routes) {
     const service = element('div', 'boarding-service');
     service.append(element('strong', '', translate('Jeepney to {destination}', { destination: route.destination })),
-      element('p', 'boarding-service-name', route.name),
-      element('p', 'boarding-service-note', route.service_note || translate('Confirm the destination and current departure with the driver before boarding.')));
+      element('p', 'boarding-service-name', route.name));
     const url = routeSourceUrl(route);
     if (url) {
       const link = element('a', 'boarding-source', translate('Route reference'));

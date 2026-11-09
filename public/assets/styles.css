@@ -1925,6 +1925,54 @@ h1, h2, h3, h4, h5, h6 {
   .map-location-directory { padding: 18px; }
   #location-editor-map { height: 400px; }
 }
+
+/* System-wide responsive safeguards: driver and shared portal views. */
+html { min-width: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: clip; }
+img, svg, video, canvas, iframe { max-width: 100%; }
+img, video, canvas { height: auto; }
+button, input, select, textarea { max-width: 100%; font: inherit; }
+input, select, textarea { min-width: 0; }
+.site-main, .app-content, .dashboard-wrap, .admin-page, .driver-page,
+.map-editor-layout, .live-route-layout, .route-planner-layout { min-width: 0; }
+.dashboard-heading, .admin-page-heading, .route-page-heading, .application-copy,
+.map-popup-content, .route-summary-section, .route-stops-section { overflow-wrap: anywhere; }
+
+@media (max-width: 768px) {
+  .top-header { min-height: 64px; padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
+  .has-sidebar .site-main { padding-right: max(16px, env(safe-area-inset-right)); padding-left: max(16px, env(safe-area-inset-left)); }
+  .form-grid, .registration-form, .vehicle-form, .driver-settings-grid,
+  .map-coordinate-fields, .map-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-table-wrap, .map-locations-table-wrap, .route-table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .button, .button-small { min-height: 44px; }
+}
+
+@media (max-width: 400px) {
+  .has-sidebar .site-main { padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .top-header { gap: 8px; }
+  .page-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* Small-screen hardening for driver pages and authenticated panels. */
+@media (max-width: 480px) {
+  .site-header .header-inner, .site-footer .footer-inner { width: calc(100% - 24px); }
+  .hero, .auth-layout, .registration-layout { width: 100%; min-width: 0; }
+  .hero-copy, .hero-visual, .auth-aside, .auth-panel, .registration-card { min-width: 0; }
+  .hero h1, .auth-aside h1 { overflow-wrap: anywhere; }
+  .hero-actions, .form-actions, .settings-actions, .admin-actions { align-items: stretch; }
+  .hero-actions .button, .form-actions .button, .settings-actions .button { width: 100%; justify-content: center; }
+  .journey-card, .floating-badge, .benefit-item { max-width: 100%; }
+  .journey-card { padding: 20px; }
+  .map-shell, .route-map, .leaflet-container { max-width: 100%; }
+  .table-wrap, .admin-table-wrap, .map-locations-table-wrap, .route-table-wrap { margin-right: -4px; }
+}
+
+@media (max-width: 360px) {
+  .site-header .header-inner, .site-footer .footer-inner { width: calc(100% - 20px); }
+  .hero, .auth-layout, .registration-layout { padding-right: 10px; padding-left: 10px; }
+  .auth-panel, .registration-card, .journey-card { padding: 16px; }
+  .sidebar-link-text, .sidebar.collapsed .sidebar-link-text { font-size: 9px; }
+}
 #driver-route-map { grid-column: 1; grid-row: 2; width: 100%; height: 560px; z-index: 0; background: #edf2f7; font-family: var(--font-body); }
 .route-map-caption { display: flex; grid-column: 1; grid-row: 4; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 0; padding: 14px; color: var(--muted); font-size: 12px; }
 .route-legend-start, .route-legend-end { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; }
@@ -3713,4 +3761,17 @@ input, select, textarea { max-width: 100%; }
     font-size: 10px;
   }
   .sidebar.collapsed .sidebar-link:hover::after { content: none; }
+}
+
+/* Keep responsive overrides after page-specific rules. */
+@media (max-width: 768px) {
+  .top-header { min-height: 64px; padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
+  .has-sidebar .site-main { padding-right: max(16px, env(safe-area-inset-right)); padding-left: max(16px, env(safe-area-inset-left)); }
+  .form-grid, .registration-form, .vehicle-form, .driver-settings-grid, .map-coordinate-fields, .map-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-table-wrap, .map-locations-table-wrap, .route-table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 400px) {
+  .has-sidebar .site-main { padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .top-header { gap: 8px; }
+  .page-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }

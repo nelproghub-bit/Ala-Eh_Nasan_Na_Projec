@@ -16,6 +16,8 @@ const requestedRouteId = Number(entryParameters.get('route'));
 const requestedLocationKey = entryParameters.get('location') || '';
 let selectedId = Number.isSafeInteger(requestedId) && requestedId > 0 ? requestedId : null;
 const focusRequestedTerminal = selectedId !== null && entryParameters.get('focus') === 'terminal';
+// A terminal detail page already supplies focus=terminal; treat that handoff as a directions request.
+const directionsRequested = focusRequestedTerminal;
 const get = id => document.getElementById(id);
 const list = get('map-locations');
 const count = get('map-result-count'), status = get('system-map-status'), locationStatus = get('user-location-status');
@@ -42,6 +44,7 @@ let nearestPin = null, nearestPinId = null;
 let terminalPinRequested = selectedId !== null;
 let routePreview = null, requestedRouteLayer = null, requestedRouteLoading = false, requestedRouteDisplayed = false;
 let automaticLocationRequested = false;
+let automaticDirectionsStarted = false;
 let userAccuracyCircle = null, followingLocation = !focusRequestedTerminal, trackingState = 'paused', trackingMap = null;
 const locationFreshness = 60000;
 const locationAccuracyNotice = 100;
@@ -127,18 +130,18 @@ function updateLocationGate() {
   const waiting = !insecure && !unsupported && !locationGateError && (locating || !mapState);
   locationGate.dataset.state = waiting ? 'locating' : 'blocked';
   get('location-jeepney-loader').hidden = false;
-  get('location-access-title').textContent = waiting ? 'Finding your location…' : 'Location unavailable';
+  get('location-access-title').textContent = waiting ? 'Finding your location...' : 'Location unavailable';
   get('location-access-help').hidden = true;
   enableLocation.hidden = waiting;
   const message = insecure ? secureLocationMessage
     : unsupported ? 'This browser does not support location sharing. Open the system in Safari or another browser with location support.'
       : waiting ? 'Choose Allow if your browser asks for your location.'
-        : locationGateError === 1 ? 'Location access is blocked. Allow Location for this website in Safari’s website settings, and enable Location Services for Safari Websites in your iPhone settings. Then try again.'
+        : locationGateError === 1 ? "Location access is blocked. Allow Location for this website in Safari's website settings, and enable Location Services for Safari Websites in your iPhone settings. Then try again."
           : locationGateError ? 'Your location could not be determined. Check Location Services and your signal, then try again.'
             : 'Allow location access to position the map and find terminals near you.';
   get('location-access-message').textContent = message;
   enableLocation.disabled = insecure || unsupported || locating || !mapState;
-  enableLocation.textContent = insecure ? 'HTTPS required' : locating ? 'Finding your location…' : 'Enable location';
+  enableLocation.textContent = insecure ? 'HTTPS required' : locating ? 'Finding your location...' : 'Enable location';
   enableLocation.setAttribute('aria-busy', String(locating));
   if (!locationGate.open) locationGate.showModal();
 }
@@ -202,7 +205,7 @@ async function showRequestedRoute() {
       const routes = await fetchJeepneyTraces();
       route = routes.find(item => item.id === requestedRouteId);
     }
-    const routeNames = String(route?.name || '').split('→').map(name => name.trim()).filter(Boolean);
+    const routeNames = String(route?.name || '').split(/\s*(?:\u2192|->)\s*/).map(name => name.trim()).filter(Boolean);
     const start = selectedRecord() || records.find(record => record.id === route?.start_terminal_id) || { name: routeNames[0] || 'Starting point' };
     const end = records.find(record => record.id === route?.end_terminal_id) || { name: routeNames.at(-1) || 'Destination' };
     if (!route || !start || !end) throw new Error('Requested route unavailable');
@@ -333,7 +336,7 @@ function renderList() {
   });
   updateSearchControls(matches);
   list.replaceChildren();
-  if (loading) count.textContent = translate('Loading locations\u2026');
+  if (loading) count.textContent = translate('Loading locations...');
   else if (loadFailure) {
     count.textContent = translate('Locations unavailable');
     const notice = element('div', 'terminal-notice');
@@ -355,7 +358,7 @@ function updateSearchControls(matches = filterTerminals(records, searchInput.val
   get('map-search-clear').hidden = !searchInput.value;
   nearestSearchButton.disabled = !mapState || loading || Boolean(loadFailure) || nearestFinding || !matches.some(record => mapCoordinates(record));
   nearestSearchButton.setAttribute('aria-busy', String(nearestFinding));
-  nearestSearchButton.textContent = nearestFinding ? 'Finding closest terminal\u2026' : 'Closest to me';
+  nearestSearchButton.textContent = nearestFinding ? 'Finding closest terminal...' : 'Closest to me';
 }
 
 function openTerminalSearch() {
@@ -419,7 +422,7 @@ function updateSelection() {
   if (mapsUrl) get('route-google-maps').href = mapsUrl;
   let message = usesLandmark ? 'Estimate the distance from your location to this landmark.' : 'Estimate the distance from your location to this terminal.';
   if (!hasDestination) message = 'Map location not yet available.';
-  else if (routeState.kind === 'loading') message = 'Calculating route\u2026';
+  else if (routeState.kind === 'loading') message = 'Calculating route...';
   else if (routeState.kind === 'error') message = routeState.message;
   else if (routeState.kind === 'ready') message = distance === null ? 'Refresh My location and estimate the distance again.'
     : usesLandmark ? 'Estimated distance to the mapped landmark.' : 'Estimated distance to the terminal.';
@@ -463,11 +466,11 @@ function stopFollowing() {
 function updateTrackingIndicator() {
   const indicator = get('map-location-indicator');
   const messages = {
-    locating: 'Finding your location\u2026',
+    locating: 'Finding your location...',
     tracking: followingLocation ? 'Following your location' : 'Live location',
     paused: 'Location updates paused',
     blocked: 'Location access unavailable',
-    unavailable: 'Waiting for location signal\u2026',
+    unavailable: 'Waiting for location signal...',
   };
   get('map-location-label').textContent = messages[trackingState];
   indicator.dataset.state = trackingState;
@@ -516,6 +519,13 @@ function updateUserPosition(fix) {
   locationStatus.textContent = translate(locationMessage);
   locationPrompt.hidden = true;
   if (followingLocation) centerOnUser(firstFix);
+  if (directionsRequested && !automaticDirectionsStarted && !loading && selectedRecord() && mapCoordinates(selectedRecord())) {
+    automaticDirectionsStarted = true;
+    followingLocation = false;
+    setTerminalPanel(true);
+    // The driving line begins only after the browser supplies a real, permissioned location fix.
+    window.setTimeout(() => estimateRoute({ drawPath: true, mode: 'driving' }), 0);
+  }
 }
 
 function locateUser() {
@@ -525,6 +535,21 @@ function locateUser() {
   });
   updateTrackingIndicator();
   return pendingLocation;
+}
+
+async function goToCurrentLocation() {
+  if (pendingLocation) return;
+  try {
+    await locateUser();
+    // This control follows the user's position only. It deliberately does not
+    // select a terminal, calculate a route, or open the terminal search panel.
+    followingLocation = true;
+    centerOnUser(true);
+  } catch (error) {
+    if (error.name !== 'AbortError') showLocationPrompt();
+  } finally {
+    updateTrackingIndicator();
+  }
 }
 
 function clearNearestPin() {
@@ -573,8 +598,8 @@ function updateNearestResult() {
   const estimate = !hasConfirmedLocation() ? 'Refresh My location for distance'
     : distance !== null ? `Est. path distance: ${formatDistance(distance)}`
       : routeState.kind === 'error' ? 'Distance unavailable'
-        : routeState.kind === 'ready' ? 'Refresh My location for distance' : 'Estimating distance\u2026';
-  nearestStatus.textContent = translate('{label} · {name} · {estimate}', { label, name: record.name, estimate });
+        : routeState.kind === 'ready' ? 'Refresh My location for distance' : 'Estimating distance...';
+  nearestStatus.textContent = translate('{label}  -  {name}  -  {estimate}', { label, name: record.name, estimate });
 }
 
 async function locateNearestTerminal({ keepPanelOpen = false } = {}) {
@@ -621,7 +646,7 @@ async function locateNearestTerminal({ keepPanelOpen = false } = {}) {
   finally { nearestFinding = false; updateTrackingIndicator(); }
 }
 
-async function estimateRoute({ drawPath = true } = {}) {
+async function estimateRoute({ drawPath = true, mode = distanceMode } = {}) {
   const record = selectedRecord();
   const destination = record && mapCoordinates(record);
   if (!destination || !mapState) return;
@@ -636,7 +661,7 @@ async function estimateRoute({ drawPath = true } = {}) {
   try {
     if (current !== routeVersion) return;
     routeController = new AbortController();
-    const result = await requestRoute(origin.coordinates, destination, distanceMode, routeController.signal);
+    const result = await requestRoute(origin.coordinates, destination, mode, routeController.signal);
     if (current !== routeVersion) return;
     if (drawPath) {
       const stroke = { opacity: 1, dashArray: null, lineCap: 'round', lineJoin: 'round', smoothFactor: .8 };
@@ -659,13 +684,14 @@ async function estimateRoute({ drawPath = true } = {}) {
   } finally { if (current === routeVersion) { routeController = null; renderList(); updateSelection(); } }
 }
 
+
 retryButton.addEventListener('click', () => { mapState?.retryTiles(); render(); });
 searchButton.addEventListener('click', openTerminalSearch);
 searchInput.addEventListener('input', searchChanged);
 get('map-search-form').addEventListener('submit', event => event.preventDefault());
 get('map-search-clear').addEventListener('click', () => { searchInput.value = ''; searchChanged(); searchInput.focus({ preventScroll: true }); });
 nearestSearchButton.addEventListener('click', () => locateNearestTerminal({ keepPanelOpen: true }));
-locateButton.addEventListener('click', () => locateNearestTerminal());
+locateButton.addEventListener('click', goToCurrentLocation);
 estimateButton.addEventListener('click', estimateRoute);
 get('location-prompt-dismiss').addEventListener('click', () => { locationPrompt.hidden = true; });
 locationGate.addEventListener('cancel', event => event.preventDefault());

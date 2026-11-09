@@ -198,7 +198,7 @@ page_start('Driver management', 'admin-drivers');
                     <div>
                       <span class="eyebrow"><span class="eyebrow-dot"></span> DRIVER ACCOUNT</span>
                       <h2 id="manage-driver-title-<?= h((string) $driver['id']) ?>">Manage <?= h((string) $driver['full_name']) ?></h2>
-                      <p><?= h((string) $driver['email']) ?> · <?= h((string) $driver['phone']) ?></p>
+                      <p><?= h((string) $driver['email']) ?>  -  <?= h((string) $driver['phone']) ?></p>
                     </div>
                     <button class="admin-manage-dialog-close" type="button"
                             data-close-driver-dialog aria-label="Close driver management dialog">×</button>
@@ -276,7 +276,7 @@ page_start('Driver management', 'admin-drivers');
         <?php foreach ($documents as $document): ?>
           <tr>
             <td data-label="Driver"><?= h((string) $document['full_name']) ?></td>
-            <td data-label="Document"><a class="document-preview-link" data-document-preview data-name="<?= h((string) $document['original_name']) ?>" data-driver="<?= h((string) $document['full_name']) ?>" data-type="<?= h(ucwords(str_replace('_', ' ', (string) $document['document_type']))) ?>" data-uploaded="<?= h(date('M j, Y · g:i A', strtotime((string) $document['uploaded_at']))) ?>" data-status="<?= h((string) $document['review_status']) ?>" data-note="<?= h((string) ($document['review_note'] ?? '')) ?>" href="admin-document.php?id=<?= h((string) $document['id']) ?>" aria-haspopup="dialog"><?= h((string) $document['original_name']) ?><span aria-hidden="true"> ↗</span></a><small><?= h(str_replace('_', ' ', (string) $document['document_type'])) ?></small></td>
+            <td data-label="Document"><a class="document-preview-link" data-document-preview data-name="<?= h((string) $document['original_name']) ?>" data-driver="<?= h((string) $document['full_name']) ?>" data-type="<?= h(ucwords(str_replace('_', ' ', (string) $document['document_type']))) ?>" data-uploaded="<?= h(date('M j, Y  -  g:i A', strtotime((string) $document['uploaded_at']))) ?>" data-status="<?= h((string) $document['review_status']) ?>" data-note="<?= h((string) ($document['review_note'] ?? '')) ?>" href="admin-document.php?id=<?= h((string) $document['id']) ?>" aria-haspopup="dialog"><?= h((string) $document['original_name']) ?><span aria-hidden="true"> ↗</span></a><small><?= h(str_replace('_', ' ', (string) $document['document_type'])) ?></small></td>
             <td data-label="Uploaded"><?= h(date('M j, Y', strtotime((string) $document['uploaded_at']))) ?></td>
             <td data-label="Review">
               <?php if ($document['review_status'] !== 'pending'): ?>

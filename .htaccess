@@ -1,9 +1,28 @@
-<FilesMatch "^\.env(?:\..*)?$">
+# Prefer public/ as the document root. These rules also protect shared hosts
+# where the whole checkout has to sit under the web root.
+Options -Indexes
+
+<FilesMatch "(?i)^(?:\..*|composer\.(?:json|lock)|Dockerfile|Caddyfile|.*\.(?:sql|sqlite(?:3)?|bak|old|orig|log|ini|pem|key))$">
     Require all denied
 </FilesMatch>
 
 # The imported module is source/dependencies; the integrated portal is in public/.
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(?:app|database|tools|storage|vendor|admin-module)(?:/|$) - [F,L]
+    # Keep ACME/domain verification under .well-known available.
+    RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
+    RewriteRule ^(?:app|database|tools|storage|vendor|admin-module|commuter-module|docs|node_modules|public)(?:/|$) - [F,L,NC]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+    Header always set X-Frame-Options "DENY"
+    Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src 'self' https://photon.komoot.io https://router.project-osrm.org https://routing.openstreetmap.de; worker-src 'self' blob:"
+
+    <FilesMatch "^user-.*\.html$">
+        Header always set Cache-Control "no-store, private"
+        Header always set Pragma "no-cache"
+    </FilesMatch>
 </IfModule>

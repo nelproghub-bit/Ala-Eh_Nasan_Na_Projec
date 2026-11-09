@@ -50,6 +50,8 @@ This application features a professional design system with:
 
 ## Deploy to Vercel
 
+For a browser **Dangerous site** warning or Apache/shared-host deployment checks, see [the security warning investigation and deployment checks](docs/browser-security-warning.md).
+
 The full PHP application can run on Vercel's beta Container Runtime using the root `Dockerfile`. Deployment requires an external production MySQL database; sessions and uploaded photos/documents are configured to persist in that database. Follow [docs/vercel-deployment.md](docs/vercel-deployment.md) for database migrations, Vercel environment variables, deployment, and verification.
 
 Open `public/admin-login.php` to sign in, then review pending applications in the admin dashboard. Approval and rejection actions require an authenticated admin session and CSRF token. The optional CLI setup command asks for the password twice; input may be visible in the terminal.

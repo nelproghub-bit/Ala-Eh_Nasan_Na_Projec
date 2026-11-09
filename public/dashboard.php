@@ -139,7 +139,7 @@ page_start('Driver dashboard', 'dashboard');
               <strong><span id="seat-available"><?= $seatStatus['available'] ?></span><small> / <?= $seatCapacity ?> seats available</small></strong>
               <span id="seat-available-percent"><?= $seatStatus['percentAvailable'] ?>% available</span>
               <div class="seat-meter" role="meter" aria-label="Occupied seats" aria-valuemin="0" aria-valuemax="<?= $seatCapacity ?>" aria-valuenow="<?= $seatOccupied ?>" id="seat-meter"><span style="width:<?= $seatStatus['percentOccupied'] ?>%"></span></div>
-              <span class="seat-occupied-note" id="seat-occupied-note"><?= $seatOccupied ?> occupied · <?= $seatStatus['percentOccupied'] ?>% occupied</span>
+              <span class="seat-occupied-note" id="seat-occupied-note"><?= $seatOccupied ?> occupied  -  <?= $seatStatus['percentOccupied'] ?>% occupied</span>
             </div>
             <div class="seat-controls">
             <label class="seat-count-label" for="seat-occupied">Occupied seats</label>

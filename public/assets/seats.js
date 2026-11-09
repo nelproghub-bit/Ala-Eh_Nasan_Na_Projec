@@ -28,7 +28,7 @@
     document.getElementById('seat-state-label').textContent = label;
     document.getElementById('seat-available').textContent = available;
     document.getElementById('seat-available-percent').textContent = `${Math.round(available / capacity * 100)}% available`;
-    document.getElementById('seat-occupied-note').textContent = `${occupied} occupied · ${Math.round(percentage)}% occupied`;
+    document.getElementById('seat-occupied-note').textContent = `${occupied} occupied  -  ${Math.round(percentage)}% occupied`;
     const meter = document.getElementById('seat-meter');
     meter.setAttribute('aria-valuenow', occupied);
     meter.firstElementChild.style.width = `${percentage}%`;

@@ -945,3 +945,31 @@ h6 {
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
   background: var(--muted-lighter);
 }
+
+/* System-wide responsive safeguards: commuter module. */
+html { min-width: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: clip; }
+img, svg, video, canvas, iframe { max-width: 100%; }
+img, video, canvas { height: auto; }
+button, input, select, textarea { max-width: 100%; font: inherit; }
+input, select, textarea { min-width: 0; }
+.app-content, .site-main, .dashboard-wrap, .passenger-dashboard, .settings-grid,
+.terminal-grid, .map-terminal-panel, .route-preview-panel { min-width: 0; }
+.journey-banner-copy, .passenger-card, .terminal-card, .settings-panel,
+.map-terminal-panel, .route-preview-panel { overflow-wrap: anywhere; }
+
+@media (max-width: 768px) {
+  .top-header { min-height: 56px; padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .has-sidebar .site-main { padding-right: max(16px, env(safe-area-inset-right)); padding-left: max(16px, env(safe-area-inset-left)); }
+  .passenger-profile { min-width: 0; }
+  .passenger-profile-info { min-width: 0; overflow: hidden; }
+  .passenger-profile-name, .passenger-profile-role { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .map-terminal-panel, .route-preview-panel { max-width: calc(100vw - 24px); }
+  .button, .settings-actions button, .passenger-card { min-height: 44px; }
+}
+
+@media (max-width: 400px) {
+  .has-sidebar .site-main { padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .top-header { gap: 6px; }
+  .passenger-profile-info { display: none; }
+}

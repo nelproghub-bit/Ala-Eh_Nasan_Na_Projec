@@ -89,7 +89,7 @@ $journeyStorageKey = $isDriverRouteMap && isset($driver['id'])
             </form>
             <p id="assigned-route-preview-status" class="route-map-help" role="status" aria-live="polite"></p>
             <p class="map-driver-pickup-current">Current assigned area: <strong><?= h($mapPickupLocationLabel) ?></strong></p>
-            <p class="map-driver-pickup-current">Current route: <strong><?= h($mapDriverSetup['route_name'] ?? 'Choose a route above') ?></strong><?php if (!empty($mapDriverSetup['route_start'])): ?> <span>(Start: <?= h($mapDriverSetup['route_start']) ?> · Destination: <?= h($mapDriverSetup['route_destination']) ?>)</span><?php endif; ?></p>
+            <p class="map-driver-pickup-current">Current route: <strong><?= h($mapDriverSetup['route_name'] ?? 'Choose a route above') ?></strong><?php if (!empty($mapDriverSetup['route_start'])): ?> <span>(Start: <?= h($mapDriverSetup['route_start']) ?>  -  Destination: <?= h($mapDriverSetup['route_destination']) ?>)</span><?php endif; ?></p>
           <?php else: ?>
             <p class="route-map-help">Your driver account and approved jeepney are required before saving an area.</p>
           <?php endif; ?>

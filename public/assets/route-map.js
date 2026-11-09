@@ -279,7 +279,7 @@
       count += 1;
     });
     const pending = locations.filter((location) => !location.coordinates).length;
-    locationsStatus.textContent = `${count} mapped locations shown${pending ? ` · ${pending} listed locations still need an exact pin` : ''}.`;
+    locationsStatus.textContent = `${count} mapped locations shown${pending ? `  -  ${pending} listed locations still need an exact pin` : ''}.`;
   }
   function renderJourney(match) {
     map.removeLayer(network);
@@ -404,7 +404,7 @@
     const boardingNote = area.locationKey === 'mabini-iconails'
       ? ' The mapped Iconails branch is on I. Calangi St; confirm the stated Circumferential Road boarding point locally.'
       : ' Landmark pin only; confirm the exact roadside boarding side locally.';
-    note('Route preview: ' + area.name + ' → ' + destination + ' · ' + distanceText(journey.distance) + '. Save area to publish your selection.' + boardingNote);
+    note('Route preview: ' + area.name + ' → ' + destination + '  -  ' + distanceText(journey.distance) + '. Save area to publish your selection.' + boardingNote);
     return true;
   }
   function exploreService(id) {
@@ -467,8 +467,8 @@
       item.append(seatIcon, name, status);
       const details = document.createElement('small');
       const updated = assignment.updated_at ? new Date(assignment.updated_at.replace(' ', 'T')).toLocaleString() : 'Unknown';
-      details.textContent = (assignment.route_name || 'Route not set') + ' · Start: ' + (assignment.location_name || point.name) + ' · Updated: ' + updated;
-      details.textContent += ' · Seats: ' + (assignment.percent_occupied === null ? 'not reported' : `${assignment.percent_occupied}% occupied`);
+      details.textContent = (assignment.route_name || 'Route not set') + '  -  Start: ' + (assignment.location_name || point.name) + '  -  Updated: ' + updated;
+      details.textContent += '  -  Seats: ' + (assignment.percent_occupied === null ? 'not reported' : `${assignment.percent_occupied}% occupied`);
       item.append(details);
       list.append(item);
     });
@@ -484,7 +484,7 @@
     type.className = 'form-kicker';
     type.textContent = terminal ? 'TERMINAL' : point.type === 'landmark' ? 'LANDMARK' : 'BOARDING POINT';
     const title = document.createElement('h3'); title.textContent = point.name;
-    const landmark = document.createElement('p'); landmark.textContent = [point.area, point.landmark].filter(Boolean).join(' · ');
+    const landmark = document.createElement('p'); landmark.textContent = [point.area, point.landmark].filter(Boolean).join('  -  ');
     popup.append(type, title, landmark);
     if (['mabini-tourism-triangle', 'mabini-seven-eleven', 'mabini-iconails', 'diversion-kwatogs'].includes(point.locationKey)) {
       const pinNote = document.createElement('p');
@@ -499,7 +499,7 @@
     const heading = document.createElement('strong'); heading.textContent = 'Mapped trips through this stop'; popup.append(heading);
     const services = routeData.routes.filter((route) => point.routeIds.includes(route.id));
     services.forEach((route) => {
-      const button = document.createElement('button'); button.type = 'button'; button.className = 'map-popup-service'; button.textContent = `BW-02 · ${route.name}`;
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'map-popup-service'; button.textContent = `BW-02  -  ${route.name}`;
       button.addEventListener('click', () => { map.closePopup(); exploreService(route.id); }); popup.append(button);
     });
     if (!services.length) { const note = document.createElement('p'); note.textContent = 'Route details have not been added for this location yet.'; popup.append(note); }

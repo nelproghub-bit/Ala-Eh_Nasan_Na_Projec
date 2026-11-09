@@ -15,19 +15,19 @@
 .terminal-group > h3 { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; color: var(--blue-900); font-size: clamp(22px, 2vw, 26px); font-weight: 800; }
 .terminal-group > h3::after { content: ''; flex: 1; height: 1px; background: var(--blue-100); }
 .terminal-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-.terminal-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 24px; border: 1px solid var(--blue-100); border-top: 3px solid var(--blue-400); border-radius: var(--radius-xl); background: linear-gradient(155deg, var(--white) 65%, var(--blue-50)); box-shadow: 0 8px 24px rgb(15 39 68 / 8%); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.terminal-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; min-height: 474px; padding: 24px; border: 1px solid var(--blue-100); border-top: 3px solid var(--blue-400); border-radius: var(--radius-xl); background: linear-gradient(155deg, var(--white) 65%, var(--blue-50)); box-shadow: 0 8px 24px rgb(15 39 68 / 8%); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
 .terminal-card:hover, .terminal-card:focus-within { border-color: var(--blue-400); box-shadow: 0 12px 30px rgb(37 99 235 / 13%); }
-.terminal-location-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 18px; border-radius: 12px; background: linear-gradient(135deg, var(--blue-600), var(--blue-700)); color: var(--white); box-shadow: 0 4px 12px rgb(37 99 235 / 20%); }
+.terminal-location-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 14px; border-radius: 12px; background: linear-gradient(135deg, var(--blue-600), var(--blue-700)); color: var(--white); box-shadow: 0 4px 12px rgb(37 99 235 / 20%); }
 .municipality-badge { display: inline-block; padding: 4px 9px; border-radius: 6px; background: var(--blue-50); color: var(--blue-700); font-size: 11px; font-weight: 600; }
 .terminal-card .municipality-badge { border: 1px solid var(--blue-100); font-size: 12px; }
-.terminal-card h4 { margin: 14px 0 10px; color: var(--blue-900); font-size: 18px; font-weight: 800; }
-.terminal-address { margin-bottom: 22px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.terminal-card h4 { min-height: 44px; margin: 14px 0 8px; color: var(--blue-900); font-size: 18px; font-weight: 800; line-height: 1.25; }
+.terminal-card h4 a { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.terminal-address { display: -webkit-box; min-height: 70px; margin: 0 0 16px; overflow: hidden; color: var(--muted); font-size: 13px; line-height: 1.8; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .terminal-details-link { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; margin-top: auto; padding: 9px 14px; border: 1px solid var(--blue-600); border-radius: var(--radius-md); background: var(--blue-600); color: var(--white); box-shadow: 0 3px 8px rgb(37 99 235 / 18%); font-size: 12px; font-weight: 700; }
 .terminal-details-link:hover { background: var(--blue-700); border-color: var(--blue-700); }
-.terminal-card-selectable { cursor: pointer; }
-.terminal-card-selectable h4 a:hover { text-decoration: underline; }
-.terminal-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: auto; }
+.terminal-card-actions { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; width: 100%; gap: 12px 14px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--blue-100); }
 .terminal-card-actions .terminal-details-link { margin-top: 0; }
+.terminal-card-actions .terminal-map-link:nth-child(3) { grid-column: 1 / -1; }
 .terminal-map-link { color: var(--blue-700); font-size: 12px; font-weight: 600; }
 .terminal-map-link:hover { text-decoration: underline; }
 .terminal-notice { padding: 28px; margin: 20px 0; border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--white); color: var(--muted); font-size: 14px; }
@@ -56,6 +56,7 @@
 .terminal-facts dd { margin: 0; color: var(--ink-lighter); font-size: 14px; overflow-wrap: anywhere; }
 .terminal-route + .terminal-route { margin-top: 20px; }
 .boarding-search-help { margin: 0 0 14px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.terminal-card .boarding-route-summary { width: 100%; min-height: 132px; margin: 0; }
 .boarding-route-summary { margin: 12px 0; padding: 12px; border: 1px solid var(--blue-100); border-radius: 12px; background: var(--blue-50); }
 .boarding-service + .boarding-service { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 .boarding-service strong { color: var(--blue-700); font-size: 13px; }
@@ -94,7 +95,9 @@
 @media (max-width: 600px) {
   .terminal-grid, .terminal-facts { grid-template-columns: 1fr; }
   .terminal-filters { grid-template-columns: minmax(0, 1fr); }
+  .terminal-card { min-height: 0; }
   .terminal-card, .terminal-information, .terminal-map-section, .terminal-detail-heading { padding: 20px; }
+  .terminal-card h4, .terminal-address { min-height: 0; }
   .terminal-map { height: 280px; }
   .terminal-actions { flex-direction: column; }
   .active-drivers-list .boarding-driver { grid-template-columns: 1fr; gap: 12px; padding: 14px; }
