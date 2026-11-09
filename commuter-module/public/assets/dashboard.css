@@ -100,5 +100,3 @@
 
 /* The availability legend is described by its label; no duplicate jeepney logo is needed. */
 .legend-detail.availability-key > .key-jeep { display:none; }
-
-@media (prefers-reduced-motion: reduce) { .journey-banner-jeepney { animation:none; } }
