@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 128" fill="none">
+  <style>.wheel{transform-box:fill-box;transform-origin:center;animation:spin 1.15s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.wheel{animation:none}}</style>
   <ellipse cx="120" cy="121" rx="108" ry="5" fill="#0f2744" opacity=".13"/>
   <path d="M71 25h145l10 9H64l7-9Z" fill="#e2e8f0" stroke="#1e4976" stroke-width="2.5"/>
   <path d="M82 22v-8h120v8M94 14v8m22-8v8m22-8v8m22-8v8m22-8v8" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
@@ -17,8 +18,6 @@
   <path d="M7 104h222v7H7z" fill="#e2e8f0" stroke="#0f2744" stroke-width="2.5" stroke-linejoin="round"/>
   <path d="M222 87h9v23h-9z" fill="#94a3b8" stroke="#0f2744" stroke-width="2"/>
   <path d="M219 116h15" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="53" cy="108" r="15" fill="#0f2744" stroke="#f8fafc" stroke-width="3"/>
-  <circle cx="53" cy="108" r="7" fill="#cbd5e1"/><circle cx="53" cy="108" r="3" fill="#64748b"/>
-  <circle cx="190" cy="108" r="15" fill="#0f2744" stroke="#f8fafc" stroke-width="3"/>
-  <circle cx="190" cy="108" r="7" fill="#cbd5e1"/><circle cx="190" cy="108" r="3" fill="#64748b"/>
+  <g class="wheel"><circle cx="53" cy="108" r="15" fill="#0f2744" stroke="#f8fafc" stroke-width="3"/><circle cx="53" cy="108" r="7" fill="#cbd5e1"/><circle cx="53" cy="108" r="3" fill="#64748b"/><path d="M53 96v24M41 108h24" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/></g>
+  <g class="wheel"><circle cx="190" cy="108" r="15" fill="#0f2744" stroke="#f8fafc" stroke-width="3"/><circle cx="190" cy="108" r="7" fill="#cbd5e1"/><circle cx="190" cy="108" r="3" fill="#64748b"/><path d="M190 96v24M178 108h24" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/></g>
 </svg>
