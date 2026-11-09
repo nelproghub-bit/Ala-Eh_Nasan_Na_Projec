@@ -387,6 +387,7 @@ function page_end(): void
     
     if ($isAuthenticated) {
         $navigationVersion = (string) filemtime(__DIR__ . '/../public/assets/navigation.js');
+        $liveRefreshVersion = (string) filemtime(__DIR__ . '/../public/assets/live-refresh.js');
         $driverLanguageScript = '';
         if (current_driver() !== null) {
             $languageVersion = (string) filemtime(__DIR__ . '/../public/assets/driver-language.js');
@@ -397,6 +398,7 @@ function page_end(): void
   </div>
 </div>
 <script src="assets/navigation.js?v={$navigationVersion}" defer></script>
+<script src="assets/live-refresh.js?v={$liveRefreshVersion}" defer></script>
 {$driverLanguageScript}
 </body>
 </html>
